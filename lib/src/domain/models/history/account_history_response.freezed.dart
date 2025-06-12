@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AccountHistoryResponse {
 
- int get accountId; String get accountName; String get currency; String get currentBalance; List<AccountHistory> get history;
+ int get accountId; String get accountName; String get currency; String get currentBalance;@JsonKey(toJson: _historyListToJson) List<AccountHistory> get history;
 /// Create a copy of AccountHistoryResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $AccountHistoryResponseCopyWith<$Res>  {
   factory $AccountHistoryResponseCopyWith(AccountHistoryResponse value, $Res Function(AccountHistoryResponse) _then) = _$AccountHistoryResponseCopyWithImpl;
 @useResult
 $Res call({
- int accountId, String accountName, String currency, String currentBalance, List<AccountHistory> history
+ int accountId, String accountName, String currency, String currentBalance,@JsonKey(toJson: _historyListToJson) List<AccountHistory> history
 });
 
 
@@ -84,7 +84,7 @@ as List<AccountHistory>,
 @JsonSerializable()
 
 class _AccountHistoryResponse implements AccountHistoryResponse {
-  const _AccountHistoryResponse({required this.accountId, required this.accountName, required this.currency, required this.currentBalance, required final  List<AccountHistory> history}): _history = history;
+  const _AccountHistoryResponse({required this.accountId, required this.accountName, required this.currency, required this.currentBalance, @JsonKey(toJson: _historyListToJson) required final  List<AccountHistory> history}): _history = history;
   factory _AccountHistoryResponse.fromJson(Map<String, dynamic> json) => _$AccountHistoryResponseFromJson(json);
 
 @override final  int accountId;
@@ -92,7 +92,7 @@ class _AccountHistoryResponse implements AccountHistoryResponse {
 @override final  String currency;
 @override final  String currentBalance;
  final  List<AccountHistory> _history;
-@override List<AccountHistory> get history {
+@override@JsonKey(toJson: _historyListToJson) List<AccountHistory> get history {
   if (_history is EqualUnmodifiableListView) return _history;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_history);
@@ -132,7 +132,7 @@ abstract mixin class _$AccountHistoryResponseCopyWith<$Res> implements $AccountH
   factory _$AccountHistoryResponseCopyWith(_AccountHistoryResponse value, $Res Function(_AccountHistoryResponse) _then) = __$AccountHistoryResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int accountId, String accountName, String currency, String currentBalance, List<AccountHistory> history
+ int accountId, String accountName, String currency, String currentBalance,@JsonKey(toJson: _historyListToJson) List<AccountHistory> history
 });
 
 

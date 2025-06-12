@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'account_state.dart';
 
@@ -13,8 +14,8 @@ abstract class AccountHistory with _$AccountHistory {
     required int id,
     required int accountId,
     required ChangeType changeType,
-    AccountState? previousState,
-    required AccountState newState,
+    @JsonKey(toJson: _accountStateToJson) AccountState? previousState,
+    @JsonKey(toJson: _accountStateToJson) required AccountState newState,
     required DateTime changeTimestamp,
     required DateTime createdAt,
   }) = _AccountHistory;
@@ -22,3 +23,6 @@ abstract class AccountHistory with _$AccountHistory {
   factory AccountHistory.fromJson(Map<String, dynamic> json) =>
       _$AccountHistoryFromJson(json);
 }
+
+Map<String, dynamic>? _accountStateToJson(AccountState? instance) =>
+    instance?.toJson();

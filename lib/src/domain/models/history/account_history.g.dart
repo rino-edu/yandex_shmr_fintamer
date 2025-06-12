@@ -27,8 +27,8 @@ Map<String, dynamic> _$AccountHistoryToJson(_AccountHistory instance) =>
       'id': instance.id,
       'accountId': instance.accountId,
       'changeType': _$ChangeTypeEnumMap[instance.changeType]!,
-      'previousState': instance.previousState,
-      'newState': instance.newState,
+      'previousState': _accountStateToJson(instance.previousState),
+      'newState': _accountStateToJson(instance.newState),
       'changeTimestamp': instance.changeTimestamp.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
     };

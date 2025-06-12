@@ -22,8 +22,8 @@ Map<String, dynamic> _$TransactionResponseToJson(
   _TransactionResponse instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'account': instance.account,
-  'category': instance.category,
+  'account': _accountBriefToJson(instance.account),
+  'category': _categoryToJson(instance.category),
   'amount': instance.amount,
   'transactionDate': instance.transactionDate.toIso8601String(),
   'comment': instance.comment,

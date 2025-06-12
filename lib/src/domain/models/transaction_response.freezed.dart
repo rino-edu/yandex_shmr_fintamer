@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransactionResponse {
 
- int get id; AccountBrief get account; Category get category; String get amount; DateTime get transactionDate; String? get comment; DateTime get createdAt; DateTime get updatedAt;
+ int get id;@JsonKey(toJson: _accountBriefToJson) AccountBrief get account;@JsonKey(toJson: _categoryToJson) Category get category; String get amount; DateTime get transactionDate; String? get comment; DateTime get createdAt; DateTime get updatedAt;
 /// Create a copy of TransactionResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $TransactionResponseCopyWith<$Res>  {
   factory $TransactionResponseCopyWith(TransactionResponse value, $Res Function(TransactionResponse) _then) = _$TransactionResponseCopyWithImpl;
 @useResult
 $Res call({
- int id, AccountBrief account, Category category, String amount, DateTime transactionDate, String? comment, DateTime createdAt, DateTime updatedAt
+ int id,@JsonKey(toJson: _accountBriefToJson) AccountBrief account,@JsonKey(toJson: _categoryToJson) Category category, String amount, DateTime transactionDate, String? comment, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -105,12 +105,12 @@ $CategoryCopyWith<$Res> get category {
 @JsonSerializable()
 
 class _TransactionResponse implements TransactionResponse {
-  const _TransactionResponse({required this.id, required this.account, required this.category, required this.amount, required this.transactionDate, this.comment, required this.createdAt, required this.updatedAt});
+  const _TransactionResponse({required this.id, @JsonKey(toJson: _accountBriefToJson) required this.account, @JsonKey(toJson: _categoryToJson) required this.category, required this.amount, required this.transactionDate, this.comment, required this.createdAt, required this.updatedAt});
   factory _TransactionResponse.fromJson(Map<String, dynamic> json) => _$TransactionResponseFromJson(json);
 
 @override final  int id;
-@override final  AccountBrief account;
-@override final  Category category;
+@override@JsonKey(toJson: _accountBriefToJson) final  AccountBrief account;
+@override@JsonKey(toJson: _categoryToJson) final  Category category;
 @override final  String amount;
 @override final  DateTime transactionDate;
 @override final  String? comment;
@@ -150,7 +150,7 @@ abstract mixin class _$TransactionResponseCopyWith<$Res> implements $Transaction
   factory _$TransactionResponseCopyWith(_TransactionResponse value, $Res Function(_TransactionResponse) _then) = __$TransactionResponseCopyWithImpl;
 @override @useResult
 $Res call({
- int id, AccountBrief account, Category category, String amount, DateTime transactionDate, String? comment, DateTime createdAt, DateTime updatedAt
+ int id,@JsonKey(toJson: _accountBriefToJson) AccountBrief account,@JsonKey(toJson: _categoryToJson) Category category, String amount, DateTime transactionDate, String? comment, DateTime createdAt, DateTime updatedAt
 });
 
 

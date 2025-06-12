@@ -26,5 +26,5 @@ Map<String, dynamic> _$AccountHistoryResponseToJson(
   'accountName': instance.accountName,
   'currency': instance.currency,
   'currentBalance': instance.currentBalance,
-  'history': instance.history,
+  'history': _historyListToJson(instance.history),
 };
