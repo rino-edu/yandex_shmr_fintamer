@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "account": {
+      "id": 101,
+      "name": "Основной счёт",
+      "balance": "98550.75",
+      "currency": "RUB"
+    },
+    "category": {
+      "id": 10,
+      "name": "Продукты",
+      "emoji": "🛒",
+      "isIncome": false
+    },
+    "amount": "1250.50",
+    "transactionDate": "2024-07-29T10:00:00.000Z",
+    "comment": "Покупка в Пятерочке",
+    "createdAt": "2024-07-29T10:00:05.000Z",
+    "updatedAt": "2024-07-29T10:00:05.000Z"
+  },
+  {
+    "id": 2,
+    "account": {
+      "id": 101,
+      "name": "Основной счёт",
+      "balance": "98550.75",
+      "currency": "RUB"
+    },
+    "category": {
+      "id": 11,
+      "name": "Транспорт",
+      "emoji": "🚌",
+      "isIncome": false
+    },
+    "amount": "54.00",
+    "transactionDate": "2024-07-28T18:30:00.000Z",
+    "comment": "Проезд на автобусе",
+    "createdAt": "2024-07-28T18:30:05.000Z",
+    "updatedAt": "2024-07-28T18:30:05.000Z"
+  },
+  {
+    "id": 3,
+    "account": {
+      "id": 101,
+      "name": "Основной счёт",
+      "balance": "98550.75",
+      "currency": "RUB"
+    },
+    "category": {
+      "id": 1,
+      "name": "Зарплата",
+      "emoji": "💰",
+      "isIncome": true
+    },
+    "amount": "100000.00",
+    "transactionDate": "2024-07-25T15:00:00.000Z",
+    "comment": null,
+    "createdAt": "2024-07-25T15:00:05.000Z",
+    "updatedAt": "2024-07-25T15:00:05.000Z"
+  },
+  {
+    "id": 4,
+    "account": {
+      "id": 101,
+      "name": "Основной счёт",
+      "balance": "98550.75",
+      "currency": "RUB"
+    },
+    "category": {
+      "id": 13,
+      "name": "Кафе и рестораны",
+      "emoji": "🍔",
+      "isIncome": false
+    },
+    "amount": "1200.00",
+    "transactionDate": "2024-07-27T13:45:00.000Z",
+    "comment": "Обед с коллегами",
+    "createdAt": "2024-07-27T13:45:05.000Z",
+    "updatedAt": "2024-07-27T13:45:05.000Z"
+  }
+] 
