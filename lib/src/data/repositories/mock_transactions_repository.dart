@@ -48,7 +48,23 @@ class MockTransactionsRepository implements ITransactionsRepository {
     DateTime? endDate,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return _loadTransactions();
+    final allTransactions = await _loadTransactions();
+    var filteredTransactions =
+        allTransactions.where((t) => t.account.id == accountId).toList();
+
+    if (startDate != null) {
+      filteredTransactions =
+          filteredTransactions
+              .where((t) => t.transactionDate.isAfter(startDate))
+              .toList();
+    }
+    if (endDate != null) {
+      filteredTransactions =
+          filteredTransactions
+              .where((t) => t.transactionDate.isBefore(endDate))
+              .toList();
+    }
+    return filteredTransactions;
   }
 
   @override
@@ -64,5 +80,12 @@ class MockTransactionsRepository implements ITransactionsRepository {
       comment: request.comment,
       transactionDate: request.transactionDate,
     );
+  }
+
+  @override
+  Future<List<TransactionResponse>> getTransactionsByAccountId({
+    required int accountId,
+  }) {
+    return getTransactionsForPeriod(accountId: accountId);
   }
 }
