@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fintamer/src/core/constants/app_constants.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
+import 'package:fintamer/src/features/add_transaction/screens/add_transaction_screen.dart';
 import 'package:fintamer/src/features/transactions_list/cubit/transactions_list_cubit.dart';
 import 'package:intl/intl.dart';
 
@@ -84,6 +85,24 @@ class TransactionsListScreen extends StatelessWidget {
                             ),
                           ),
                           child: ListTile(
+                            onTap: () async {
+                              final result = await Navigator.of(
+                                context,
+                              ).push<bool>(
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => AddTransactionScreen(
+                                        isIncome: isIncome,
+                                        transaction: transaction,
+                                      ),
+                                ),
+                              );
+                              if (result == true && context.mounted) {
+                                context
+                                    .read<TransactionsListCubit>()
+                                    .loadTransactions(isIncome: isIncome);
+                              }
+                            },
                             leading: CircleAvatar(
                               radius: 14,
                               backgroundColor: AppColors.secondaryColor,
@@ -129,12 +148,22 @@ class TransactionsListScreen extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Navigate to add transaction screen
+          heroTag: title,
+          onPressed: () async {
+            final result = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => AddTransactionScreen(isIncome: isIncome),
+              ),
+            );
+            if (result == true && context.mounted) {
+              context.read<TransactionsListCubit>().loadTransactions(
+                isIncome: isIncome,
+              );
+            }
           },
           shape: const CircleBorder(),
           backgroundColor: AppColors.primaryColor,
-          child: const Icon(Icons.add, color: AppColors.white, size: 32,),
+          child: const Icon(Icons.add, color: AppColors.white, size: 32),
         ),
       ),
     );
