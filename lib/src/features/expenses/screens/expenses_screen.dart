@@ -6,6 +6,6 @@ class ExpensesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const TransactionsListScreen(isIncome: false, title: 'Расходы');
+    return const TransactionsListScreen(isIncome: false, title: 'Расходы сегодня');
   }
 }

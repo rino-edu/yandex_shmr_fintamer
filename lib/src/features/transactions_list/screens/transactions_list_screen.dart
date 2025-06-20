@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fintamer/src/core/constants/app_constants.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/transactions_list/cubit/transactions_list_cubit.dart';
+import 'package:intl/intl.dart';
 
 class TransactionsListScreen extends StatelessWidget {
   final bool isIncome;
@@ -17,6 +18,7 @@ class TransactionsListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final numberFormatter = NumberFormat("#,##0", "ru_RU");
 
     return BlocProvider(
       create:
@@ -27,12 +29,9 @@ class TransactionsListScreen extends StatelessWidget {
         backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text(title),
+          centerTitle: true,
           backgroundColor: AppColors.primaryColor,
-          titleTextStyle: theme.textTheme.titleLarge?.copyWith(
-            color: AppColors.white,
-            fontWeight: FontWeight.bold,
-          ),
-          iconTheme: const IconThemeData(color: AppColors.white),
+          titleTextStyle: theme.textTheme.titleLarge,
           actions: [
             IconButton(
               icon: const Icon(Icons.history),
@@ -57,60 +56,66 @@ class TransactionsListScreen extends StatelessWidget {
                 children: [
                   Container(
                     width: double.infinity,
-                    color: AppColors.surfaceContainer,
+                    color: AppColors.secondaryColor,
                     padding: const EdgeInsets.all(
                       AppDimensions.scaffoldPadding,
                     ),
-                    child: Text(
-                      'Всего: ${state.totalAmount.toStringAsFixed(2)} ₽',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Всего', style: theme.textTheme.bodyLarge),
+                        Text(
+                          '${numberFormatter.format(state.totalAmount.round())} ₽',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(
-                        AppDimensions.scaffoldPadding / 2,
-                      ),
                       itemCount: state.transactions.length,
                       itemBuilder: (context, index) {
                         final transaction = state.transactions[index];
-                        final amountColor =
-                            transaction.category.isIncome
-                                ? AppColors.incomeColor
-                                : AppColors.expenseColor;
-
-                        return Card(
-                          elevation: 2,
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 8,
+                        return Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: Color(0xFFFEF7FF)),
+                              bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                            ),
                           ),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor:
-                                  theme.colorScheme.primaryContainer,
+                              radius: 14,
+                              backgroundColor: AppColors.secondaryColor,
                               child: Text(
                                 transaction.category.emoji,
-                                style: const TextStyle(fontSize: 24),
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ),
                             title: Text(
                               transaction.category.name,
-                              style: theme.textTheme.titleMedium,
+                              style: theme.textTheme.bodyLarge,
                             ),
                             subtitle: Text(
                               transaction.comment ?? 'Без комментария',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            trailing: Text(
-                              '${transaction.category.isIncome ? '+' : '-'} ${transaction.amount} ₽',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: amountColor,
-                                fontWeight: FontWeight.bold,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: AppColors.unselectedNavIcon,
                               ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${numberFormatter.format(double.parse(transaction.amount))} ₽',
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                                const SizedBox(width: 16),
+                                const Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  color: Color(0x4D3C3C43),
+                                  size: 16,
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -127,8 +132,9 @@ class TransactionsListScreen extends StatelessWidget {
           onPressed: () {
             // TODO: Navigate to add transaction screen
           },
+          shape: const CircleBorder(),
           backgroundColor: AppColors.primaryColor,
-          child: const Icon(Icons.add, color: AppColors.white),
+          child: const Icon(Icons.add, color: AppColors.white, size: 32,),
         ),
       ),
     );
