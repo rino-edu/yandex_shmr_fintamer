@@ -10,14 +10,18 @@ abstract class AppColors {
 
   // Dark Theme (placeholders for now)
   static const Color darkBackground = Color(0xFF1C1B1F);
-  static const Color darkSurfaceContainer = Color(0xFF2D2A32);
+  static const Color darkSurfaceContainer = Color(0xFF2B2930);
   static const Color darkUnselectedNavIcon = Color(0xFFCAC4D0);
 
   // General
   static const Color white = Colors.white;
+
+  static const Color incomeColor = Colors.green;
+  static const Color expenseColor = Colors.red;
 }
 
 abstract class AppDimensions {
   static const double mainHorizontalPadding = 8.0;
   static const double navigationBarHeight = 80.0;
+  static const double scaffoldPadding = 16.0;
 }
