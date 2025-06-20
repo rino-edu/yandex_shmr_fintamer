@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:fintamer/src/domain/models/requests/transaction_request.dart';
 import 'package:fintamer/src/domain/models/transaction.dart';
@@ -21,7 +22,7 @@ class MockTransactionsRepository implements ITransactionsRepository {
     required TransactionRequest request,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    print('Имитация создания транзакции: ${request.amount}');
+    debugPrint('Имитация создания транзакции: ${request.amount}');
     return Transaction(
       id: Random().nextInt(1000) + 100, // Случайный ID
       accountId: request.accountId,
@@ -37,7 +38,7 @@ class MockTransactionsRepository implements ITransactionsRepository {
   @override
   Future<void> deleteTransaction({required int id}) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    print('Имитация удаления транзакции с id: $id');
+    debugPrint('Имитация удаления транзакции с id: $id');
     return;
   }
 
@@ -73,7 +74,7 @@ class MockTransactionsRepository implements ITransactionsRepository {
     required TransactionRequest request,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    print('Имитация обновления транзакции с id: $id');
+    debugPrint('Имитация обновления транзакции с id: $id');
     final mockTransaction = (await _loadTransactions()).first;
     return mockTransaction.copyWith(
       amount: request.amount,
