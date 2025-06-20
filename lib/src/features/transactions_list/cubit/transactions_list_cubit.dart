@@ -20,13 +20,12 @@ class TransactionsListCubit extends Cubit<TransactionsListState> {
 
       final now = DateTime.now();
       final from = DateTime(now.year, now.month, now.day);
-      final to = from.add(const Duration(days: 1));
 
       final allTransactions = await _transactionsRepository
           .getTransactionsForPeriod(
             accountId: _accountId,
             startDate: from,
-            endDate: to,
+            endDate: from,
           );
 
       final filteredTransactions =
