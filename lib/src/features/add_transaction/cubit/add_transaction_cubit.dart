@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fintamer/src/domain/models/account_brief.dart';
 import 'package:fintamer/src/domain/models/category.dart';
 import 'package:fintamer/src/domain/models/requests/transaction_request.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
@@ -30,9 +31,10 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   final IAccountRepository _accountRepository;
   final bool isIncome;
   final TransactionResponse? transaction;
-  final int _accountId = 1;
 
   void init() {
+    _loadAccounts();
+
     if (state.isEditing) {
       final tr = state.initialTransaction!;
       emit(
@@ -46,18 +48,23 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
     } else {
       emit(state.copyWith(date: DateTime.now()));
     }
-    _loadAccountName();
   }
 
-  Future<void> _loadAccountName() async {
+  Future<void> _loadAccounts() async {
     try {
-      final accountResponse = await _accountRepository.getAccount(
-        id: _accountId,
-      );
-      emit(state.copyWith(accountName: accountResponse.name));
+      final accounts = await _accountRepository.getAccounts();
+      if (accounts.isNotEmpty) {
+        emit(
+          state.copyWith(accounts: accounts, selectedAccount: accounts.first),
+        );
+      }
     } catch (e) {
       // Handle error
     }
+  }
+
+  void onAccountSelected(AccountBrief account) {
+    emit(state.copyWith(selectedAccount: account));
   }
 
   void onAmountChanged(String amount) {
@@ -91,13 +98,15 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   }
 
   Future<void> saveTransaction() async {
-    if (state.category == null || state.date == null) {
+    if (state.category == null ||
+        state.date == null ||
+        state.selectedAccount == null) {
       return;
     }
     emit(state.copyWith(status: AddTransactionStatus.loading));
     try {
       final request = TransactionRequest(
-        accountId: _accountId,
+        accountId: state.selectedAccount!.id,
         categoryId: state.category!.id,
         amount: state.amount,
         transactionDate: state.date!,

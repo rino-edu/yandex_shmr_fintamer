@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/domain/models/account.dart';
+import 'package:fintamer/src/domain/models/account_brief.dart';
 import 'package:fintamer/src/domain/models/account_response.dart';
 import 'package:fintamer/src/domain/models/requests/account_update_request.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
@@ -10,6 +11,18 @@ class ApiAccountRepository implements IAccountRepository {
   final ApiClient _apiClient;
 
   ApiAccountRepository(this._apiClient);
+
+  @override
+  Future<List<AccountBrief>> getAccounts() async {
+    try {
+      final response = await _apiClient.dio.get('/accounts');
+      final List<dynamic> data = response.data;
+      return data.map((json) => AccountBrief.fromJson(json)).toList();
+    } on DioException catch (e) {
+      debugPrint('Error fetching accounts: $e');
+      rethrow;
+    }
+  }
 
   @override
   Future<AccountResponse> getAccount({required int id}) async {

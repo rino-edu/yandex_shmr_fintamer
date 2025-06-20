@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fintamer/src/core/constants/app_constants.dart';
+import 'package:fintamer/src/domain/models/account_brief.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
@@ -86,9 +87,20 @@ class _AddTransactionView extends StatelessWidget {
                 children: [
                   _CustomListTile(
                     title: 'Счет',
-                    trailing: state.accountName ?? 'Загрузка...',
-                    onTap: () {
-                      // TODO: Implement account selection
+                    trailing: state.selectedAccount?.name ?? 'Загрузка...',
+                    onTap: () async {
+                      if (state.accounts.isEmpty) return;
+                      final selectedAccount =
+                          await showModalBottomSheet<AccountBrief>(
+                            context: context,
+                            builder:
+                                (_) => _AccountSelectionSheet(
+                                  accounts: state.accounts,
+                                ),
+                          );
+                      if (selectedAccount != null) {
+                        cubit.onAccountSelected(selectedAccount);
+                      }
                     },
                   ),
                   _CustomListTile(
@@ -185,26 +197,56 @@ class _CustomListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListTile(
-      title: Text(title, style: theme.textTheme.bodyLarge),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            trailing,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: AppColors.unselectedNavIcon,
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: Color(0x4D3C3C43),
-            size: 16,
-          ),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color(0xFFFEF7FF)),
+          bottom: BorderSide(color: Color(0xFFFEF7FF)),
+        ),
       ),
-      onTap: onTap,
+      child: ListTile(
+        title: Text(title, style: theme.textTheme.bodyLarge),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              trailing,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: AppColors.unselectedNavIcon,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Color(0x4D3C3C43),
+              size: 16,
+            ),
+          ],
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _AccountSelectionSheet extends StatelessWidget {
+  final List<AccountBrief> accounts;
+
+  const _AccountSelectionSheet({required this.accounts});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: accounts.length,
+      itemBuilder: (context, index) {
+        final account = accounts[index];
+        return ListTile(
+          title: Text(account.name),
+          onTap: () {
+            Navigator.of(context).pop(account);
+          },
+        );
+      },
     );
   }
 }
