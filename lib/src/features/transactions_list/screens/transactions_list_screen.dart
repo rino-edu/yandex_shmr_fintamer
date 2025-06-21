@@ -4,6 +4,7 @@ import 'package:fintamer/src/core/constants/app_constants.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/add_transaction/screens/add_transaction_screen.dart';
+import 'package:fintamer/src/features/history/screens/history_screen.dart';
 import 'package:fintamer/src/features/transactions_list/cubit/transactions_list_cubit.dart';
 import 'package:intl/intl.dart';
 
@@ -52,7 +53,11 @@ class _TransactionsListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
-              // TODO: Navigate to history screen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => HistoryScreen(isIncome: isIncome),
+                ),
+              );
             },
           ),
         ],
