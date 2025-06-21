@@ -55,6 +55,40 @@ class _HistoryView extends StatelessWidget {
     }
   }
 
+  Future<void> _showSortDialog(BuildContext context) async {
+    final cubit = context.read<HistoryCubit>();
+    await showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return SimpleDialog(
+          title: const Text('Выберите сортировку'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                cubit.updateSortType(
+                  sortType: HistorySortType.byDate,
+                  isIncome: isIncome,
+                );
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('По дате'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                cubit.updateSortType(
+                  sortType: HistorySortType.byAmount,
+                  isIncome: isIncome,
+                );
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('По сумме'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -106,6 +140,12 @@ class _HistoryView extends StatelessWidget {
                   date: state.endDate,
                   onTap: () => _selectDate(context, false, state.endDate),
                   formatter: dateFormatter,
+                ),
+                const Divider(height: 1, thickness: 1),
+                _buildSortRow(
+                  context: context,
+                  sortType: state.sortType,
+                  onTap: () => _showSortDialog(context),
                 ),
                 const Divider(height: 1, thickness: 1),
                 _buildTotalRow(
@@ -204,6 +244,31 @@ class _HistoryView extends StatelessWidget {
           children: [
             Text(label, style: theme.textTheme.bodyLarge),
             Text(formatter.format(date), style: theme.textTheme.bodyLarge),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortRow({
+    required BuildContext context,
+    required HistorySortType sortType,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final sortTypeText =
+        sortType == HistorySortType.byDate ? 'По дате' : 'По сумме';
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        color: AppColors.secondaryColor,
+        padding: const EdgeInsets.all(AppDimensions.scaffoldPadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Сортировка', style: theme.textTheme.bodyLarge),
+            Text(sortTypeText, style: theme.textTheme.bodyLarge),
           ],
         ),
       ),

@@ -3,12 +3,15 @@ import 'package:fintamer/src/domain/models/transaction_response.dart';
 
 enum HistoryStatus { initial, loading, success, failure }
 
+enum HistorySortType { byDate, byAmount }
+
 class HistoryState extends Equatable {
   final HistoryStatus status;
   final List<TransactionResponse> transactions;
   final DateTime startDate;
   final DateTime endDate;
   final double totalAmount;
+  final HistorySortType sortType;
   final String? errorMessage;
 
   const HistoryState({
@@ -18,6 +21,7 @@ class HistoryState extends Equatable {
     required this.endDate,
     required this.totalAmount,
     this.errorMessage,
+    required this.sortType,
   });
 
   factory HistoryState.initial() {
@@ -29,6 +33,7 @@ class HistoryState extends Equatable {
       startDate: startDate,
       endDate: endDate,
       totalAmount: 0.0,
+      sortType: HistorySortType.byDate,
     );
   }
 
@@ -38,6 +43,7 @@ class HistoryState extends Equatable {
     DateTime? startDate,
     DateTime? endDate,
     double? totalAmount,
+    HistorySortType? sortType,
     String? errorMessage,
   }) {
     return HistoryState(
@@ -46,6 +52,7 @@ class HistoryState extends Equatable {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       totalAmount: totalAmount ?? this.totalAmount,
+      sortType: sortType ?? this.sortType,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -58,5 +65,6 @@ class HistoryState extends Equatable {
     endDate,
     totalAmount,
     errorMessage,
+    sortType,
   ];
 }

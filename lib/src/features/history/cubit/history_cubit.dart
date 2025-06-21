@@ -51,9 +51,17 @@ class HistoryCubit extends Cubit<HistoryState> {
             return t.category.isIncome == isIncome;
           }).toList();
 
-      filteredTransactions.sort(
-        (a, b) => b.transactionDate.compareTo(a.transactionDate),
-      );
+      if (state.sortType == HistorySortType.byDate) {
+        filteredTransactions.sort(
+          (a, b) => b.transactionDate.compareTo(a.transactionDate),
+        );
+      } else {
+        filteredTransactions.sort((a, b) {
+          final amountA = double.tryParse(a.amount) ?? 0.0;
+          final amountB = double.tryParse(b.amount) ?? 0.0;
+          return amountB.compareTo(amountA);
+        });
+      }
 
       double total = 0;
       for (var t in filteredTransactions) {
@@ -98,6 +106,14 @@ class HistoryCubit extends Cubit<HistoryState> {
     } else {
       emit(state.copyWith(endDate: endDate));
     }
+    await loadHistory(isIncome: isIncome);
+  }
+
+  Future<void> updateSortType({
+    required HistorySortType sortType,
+    required bool isIncome,
+  }) async {
+    emit(state.copyWith(sortType: sortType));
     await loadHistory(isIncome: isIncome);
   }
 }
