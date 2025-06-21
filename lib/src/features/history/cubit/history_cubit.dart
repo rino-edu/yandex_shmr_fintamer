@@ -81,7 +81,11 @@ class HistoryCubit extends Cubit<HistoryState> {
     required DateTime startDate,
     required bool isIncome,
   }) async {
-    emit(state.copyWith(startDate: startDate));
+    if (startDate.isAfter(state.endDate)) {
+      emit(state.copyWith(startDate: startDate, endDate: startDate));
+    } else {
+      emit(state.copyWith(startDate: startDate));
+    }
     await loadHistory(isIncome: isIncome);
   }
 
@@ -89,7 +93,11 @@ class HistoryCubit extends Cubit<HistoryState> {
     required DateTime endDate,
     required bool isIncome,
   }) async {
-    emit(state.copyWith(endDate: endDate));
+    if (endDate.isBefore(state.startDate)) {
+      emit(state.copyWith(endDate: endDate, startDate: endDate));
+    } else {
+      emit(state.copyWith(endDate: endDate));
+    }
     await loadHistory(isIncome: isIncome);
   }
 }
