@@ -9,6 +9,7 @@ class AddTransactionState extends Equatable {
     required this.isIncome,
     this.accounts = const [],
     this.selectedAccount,
+    this.categories = const [],
     this.category,
     this.amount = '0',
     this.date,
@@ -21,6 +22,7 @@ class AddTransactionState extends Equatable {
   final bool isIncome;
   final List<AccountBrief> accounts;
   final AccountBrief? selectedAccount;
+  final List<Category> categories;
   final Category? category;
   final String amount;
   final DateTime? date;
@@ -35,6 +37,7 @@ class AddTransactionState extends Equatable {
     bool? isIncome,
     List<AccountBrief>? accounts,
     AccountBrief? selectedAccount,
+    List<Category>? categories,
     Category? category,
     String? amount,
     DateTime? date,
@@ -47,6 +50,7 @@ class AddTransactionState extends Equatable {
       isIncome: isIncome ?? this.isIncome,
       accounts: accounts ?? this.accounts,
       selectedAccount: selectedAccount ?? this.selectedAccount,
+      categories: categories ?? this.categories,
       category: category ?? this.category,
       amount: amount ?? this.amount,
       date: date ?? this.date,
@@ -62,6 +66,7 @@ class AddTransactionState extends Equatable {
     isIncome,
     accounts,
     selectedAccount,
+    categories,
     category,
     amount,
     date,

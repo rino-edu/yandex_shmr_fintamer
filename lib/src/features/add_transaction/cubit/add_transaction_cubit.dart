@@ -5,6 +5,7 @@ import 'package:fintamer/src/domain/models/category.dart';
 import 'package:fintamer/src/domain/models/requests/transaction_request.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
+import 'package:fintamer/src/domain/repositories/categories_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -14,10 +15,12 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   AddTransactionCubit({
     required ITransactionsRepository transactionsRepository,
     required IAccountRepository accountRepository,
+    required ICategoriesRepository categoriesRepository,
     required this.isIncome,
     this.transaction,
   }) : _transactionsRepository = transactionsRepository,
        _accountRepository = accountRepository,
+       _categoriesRepository = categoriesRepository,
        super(
          AddTransactionState(
            isIncome: isIncome,
@@ -29,11 +32,14 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
 
   final ITransactionsRepository _transactionsRepository;
   final IAccountRepository _accountRepository;
+  final ICategoriesRepository _categoriesRepository;
   final bool isIncome;
   final TransactionResponse? transaction;
+  final int _userId = 136;
 
   void init() {
     _loadAccounts();
+    _loadCategories();
 
     if (state.isEditing) {
       final tr = state.initialTransaction!;
@@ -58,6 +64,18 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
           state.copyWith(accounts: accounts, selectedAccount: accounts.first),
         );
       }
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories =
+          state.isIncome
+              ? await _categoriesRepository.getIncomeCategories()
+              : await _categoriesRepository.getExpenseCategories();
+      emit(state.copyWith(categories: categories));
     } catch (e) {
       // Handle error
     }
@@ -109,7 +127,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
         accountId: state.selectedAccount!.id,
         categoryId: state.category!.id,
         amount: state.amount,
-        transactionDate: state.date!,
+        transactionDate: state.date!.toUtc(),
         comment: state.comment,
       );
       if (state.isEditing) {
