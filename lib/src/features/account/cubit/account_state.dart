@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fintamer/src/domain/models/account_response.dart';
+import 'package:fintamer/src/domain/models/account.dart';
 
 abstract class AccountState extends Equatable {
   const AccountState();
@@ -13,17 +13,17 @@ class AccountInitial extends AccountState {}
 class AccountLoading extends AccountState {}
 
 class AccountLoaded extends AccountState {
-  final AccountResponse account;
+  final List<Account> accounts;
   final bool isBalanceVisible;
 
-  const AccountLoaded({required this.account, this.isBalanceVisible = true});
+  const AccountLoaded({required this.accounts, this.isBalanceVisible = true});
 
   @override
-  List<Object?> get props => [account, isBalanceVisible];
+  List<Object?> get props => [accounts, isBalanceVisible];
 
-  AccountLoaded copyWith({AccountResponse? account, bool? isBalanceVisible}) {
+  AccountLoaded copyWith({List<Account>? accounts, bool? isBalanceVisible}) {
     return AccountLoaded(
-      account: account ?? this.account,
+      accounts: accounts ?? this.accounts,
       isBalanceVisible: isBalanceVisible ?? this.isBalanceVisible,
     );
   }

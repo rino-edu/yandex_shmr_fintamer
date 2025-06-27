@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fintamer/src/domain/models/account_response.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/account/cubit/account_state.dart';
@@ -14,7 +13,7 @@ class AccountCubit extends Cubit<AccountState> {
   AccountCubit(this._accountRepository, this._transactionsRepository)
     : super(AccountInitial()) {
     _transactionsSubscription = _transactionsRepository.onTransactionsUpdated
-        .listen((_) => fetchTotalBalance());
+        .listen((_) => fetchAccounts());
   }
 
   @override
@@ -23,7 +22,7 @@ class AccountCubit extends Cubit<AccountState> {
     return super.close();
   }
 
-  Future<void> fetchTotalBalance() async {
+  Future<void> fetchAccounts() async {
     try {
       emit(AccountLoading());
       final accounts = await _accountRepository.getAccounts();
@@ -31,24 +30,7 @@ class AccountCubit extends Cubit<AccountState> {
         emit(const AccountError('У вас нет счетов'));
         return;
       }
-
-      final totalBalance = accounts.fold<double>(
-        0.0,
-        (sum, acc) => sum + (double.tryParse(acc.balance) ?? 0),
-      );
-
-      final summaryAccount = AccountResponse(
-        id: 0,
-        name: 'Все счета',
-        balance: totalBalance.toStringAsFixed(2),
-        currency: accounts.first.currency,
-        incomeStats: [],
-        expenseStats: [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      emit(AccountLoaded(account: summaryAccount));
+      emit(AccountLoaded(accounts: accounts));
     } catch (e) {
       emit(AccountError(e.toString()));
     }

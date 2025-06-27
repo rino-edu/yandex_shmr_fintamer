@@ -23,7 +23,7 @@ class AccountScreen extends StatelessWidget {
           (context) => AccountCubit(
             context.read<IAccountRepository>(),
             context.read<ITransactionsRepository>(),
-          )..fetchTotalBalance(),
+          )..fetchAccounts(),
       child: const _AccountView(),
     );
   }
@@ -103,61 +103,96 @@ class _AccountViewState extends State<_AccountView> {
             return Center(child: Text('Ошибка: ${state.message}'));
           }
           if (state is AccountLoaded) {
-            final amount = double.tryParse(state.account.balance) ?? 0;
-            final formattedAmount = NumberFormat(
-              "#,##0.00",
-              "ru_RU",
-            ).format(amount);
-            final balance = '$formattedAmount ₽';
+            return ListView.builder(
+              itemCount: state.accounts.length,
+              itemBuilder: (context, index) {
+                final account = state.accounts[index];
+                final amount = double.tryParse(account.balance) ?? 0;
+                final formattedAmount = NumberFormat(
+                  "#,##0.00",
+                  "ru_RU",
+                ).format(amount);
 
-            return Column(
-              children: [
-                Container(
-                  color: AppColors.secondaryColor,
+                String getCurrencySymbol(String currencyCode) {
+                  switch (currencyCode) {
+                    case 'RUB':
+                      return '₽';
+                    case 'USD':
+                      return '\$';
+                    case 'EUR':
+                      return '€';
+                    default:
+                      return currencyCode;
+                  }
+                }
+
+                final currencySymbol = getCurrencySymbol(account.currency);
+                final balance = '$formattedAmount $currencySymbol';
+
+                return Container(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Color(0xFFFEF7FF)),
+                      bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                    ),
+                    color: AppColors.secondaryColor,
+                  ),
                   child: Column(
                     children: [
-                      AnimatedSpoiler(
-                        isRevealed: state.isBalanceVisible,
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            radius: 14,
-                            backgroundColor: Colors.white,
-                            child: Text('💰', style: TextStyle(fontSize: 16)),
+                      ListTile(
+                        leading: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: Colors.white,
+                          child: const Text(
+                            '💰',
+                            style: TextStyle(fontSize: 16),
                           ),
-                          title: Text(
-                            'Баланс',
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                          trailing: Text(
-                            balance,
-                            style: theme.textTheme.bodyLarge,
+                        ),
+                        title: Text(
+                          account.name,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        trailing: SizedBox(
+                          width: 150,
+                          child: AnimatedSpoiler(
+                            isRevealed: state.isBalanceVisible,
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                balance,
+                                style: theme.textTheme.bodyLarge
+                              ),
+                            ),
                           ),
                         ),
                       ),
                       if (!state.isBalanceVisible)
-                        ListTile(
-                          leading: const CircleAvatar(
-                            radius: 14,
-                            backgroundColor: Colors.white,
-                            child: Text('💰', style: TextStyle(fontSize: 16)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 14.0,
                           ),
-                          title: Text(
-                            'Баланс скрыт',
-                            style: theme.textTheme.bodyLarge,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Баланс скрыт',
+                              style: theme.textTheme.bodyLarge,
+                            ),
                           ),
                         ),
-                      const Divider(height: 1),
                       ListTile(
                         title: Text('Валюта', style: theme.textTheme.bodyLarge),
                         trailing: Text(
-                          state.account.currency,
-                          style: theme.textTheme.bodyLarge,
+                          currencySymbol,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontSize: 18,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                );
+              },
             );
           }
           return const SizedBox.shrink();
