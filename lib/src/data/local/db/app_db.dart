@@ -23,7 +23,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.connection);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      for (final table in allTables) {
+        await m.deleteTable(table.actualTableName);
+        await m.createTable(table);
+      }
+    },
+  );
 }
 
 LazyDatabase _openConnection() {

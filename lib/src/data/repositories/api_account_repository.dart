@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
+import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/domain/models/account.dart';
 import 'package:fintamer/src/domain/models/account_brief.dart';
 import 'package:fintamer/src/domain/models/account_response.dart';
@@ -9,8 +10,9 @@ import 'package:flutter/cupertino.dart';
 
 class ApiAccountRepository implements IAccountRepository {
   final ApiClient _apiClient;
+  final DriftLocalDataSource _localDataSource;
 
-  ApiAccountRepository(this._apiClient);
+  ApiAccountRepository(this._apiClient, this._localDataSource);
 
   @override
   Future<List<AccountBrief>> getAccounts() async {
@@ -45,7 +47,9 @@ class ApiAccountRepository implements IAccountRepository {
         '/accounts/$id',
         data: request.toJson(),
       );
-      return Account.fromJson(response.data);
+      final account = Account.fromJson(response.data);
+      _localDataSource.saveAccount(account);
+      return account;
     } on DioException catch (e) {
       debugPrint('Error updating account: $e');
       rethrow;
