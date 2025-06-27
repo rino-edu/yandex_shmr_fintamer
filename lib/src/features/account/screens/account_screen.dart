@@ -80,7 +80,20 @@ class _AccountViewState extends State<_AccountView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Счет'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Мой счет'),
+        centerTitle: true,
+        backgroundColor: AppColors.primaryColor,
+        titleTextStyle: theme.textTheme.titleLarge,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () {
+              // TODO: Implement edit account
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<AccountCubit, AccountState>(
         builder: (context, state) {
           if (state is AccountLoading || state is AccountInitial) {
@@ -90,48 +103,60 @@ class _AccountViewState extends State<_AccountView> {
             return Center(child: Text('Ошибка: ${state.message}'));
           }
           if (state is AccountLoaded) {
-            final balance = NumberFormat.currency(
-              locale: 'ru_RU',
-              symbol: '₽',
-            ).format(double.tryParse(state.account.balance) ?? 0);
+            final amount = double.tryParse(state.account.balance) ?? 0;
+            final formattedAmount = NumberFormat(
+              "#,##0.00",
+              "ru_RU",
+            ).format(amount);
+            final balance = '$formattedAmount ₽';
 
-            return ListView(
-              padding: const EdgeInsets.all(16.0),
+            return Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: theme.cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  color: AppColors.secondaryColor,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        state.account.name,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
                       AnimatedSpoiler(
                         isRevealed: state.isBalanceVisible,
-                        child: Text(
-                          balance,
-                          style: theme.textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
+                        child: ListTile(
+                          leading: const CircleAvatar(
+                            radius: 14,
+                            backgroundColor: Colors.white,
+                            child: Text('💰', style: TextStyle(fontSize: 16)),
+                          ),
+                          title: Text(
+                            'Баланс',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          trailing: Text(
+                            balance,
+                            style: theme.textTheme.bodyLarge,
                           ),
                         ),
                       ),
                       if (!state.isBalanceVisible)
-                        Text(
-                          'Баланс скрыт',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.hintColor,
+                        ListTile(
+                          leading: const CircleAvatar(
+                            radius: 14,
+                            backgroundColor: Colors.white,
+                            child: Text('💰', style: TextStyle(fontSize: 16)),
+                          ),
+                          title: Text(
+                            'Баланс скрыт',
+                            style: theme.textTheme.bodyLarge,
                           ),
                         ),
+                      const Divider(height: 1),
+                      ListTile(
+                        title: Text('Валюта', style: theme.textTheme.bodyLarge),
+                        trailing: Text(
+                          state.account.currency,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                // TODO: Add stats widgets later
               ],
             );
           }
