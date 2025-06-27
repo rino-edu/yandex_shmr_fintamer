@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fintamer/src/core/constants/app_constants.dart';
-import 'package:fintamer/src/domain/models/account_brief.dart';
+import 'package:fintamer/src/domain/models/account.dart';
 import 'package:fintamer/src/domain/models/category.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
@@ -94,7 +94,7 @@ class _AddTransactionView extends StatelessWidget {
                     onTap: () async {
                       if (state.accounts.isEmpty) return;
                       final selectedAccount =
-                          await showModalBottomSheet<AccountBrief>(
+                          await showModalBottomSheet<Account>(
                             context: context,
                             builder:
                                 (_) => _AccountSelectionSheet(
@@ -273,9 +273,9 @@ class _CustomListTile extends StatelessWidget {
 }
 
 class _AccountSelectionSheet extends StatelessWidget {
-  final List<AccountBrief> accounts;
-
   const _AccountSelectionSheet({required this.accounts});
+
+  final List<Account> accounts;
 
   @override
   Widget build(BuildContext context) {
@@ -285,9 +285,7 @@ class _AccountSelectionSheet extends StatelessWidget {
         final account = accounts[index];
         return ListTile(
           title: Text(account.name),
-          onTap: () {
-            Navigator.of(context).pop(account);
-          },
+          onTap: () => Navigator.of(context).pop(account),
         );
       },
     );

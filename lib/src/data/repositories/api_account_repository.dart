@@ -15,11 +15,11 @@ class ApiAccountRepository implements IAccountRepository {
   ApiAccountRepository(this._apiClient, this._localDataSource);
 
   @override
-  Future<List<AccountBrief>> getAccounts() async {
+  Future<List<Account>> getAccounts() async {
     try {
       final response = await _apiClient.dio.get('/accounts');
       final List<dynamic> data = response.data;
-      return data.map((json) => AccountBrief.fromJson(json)).toList();
+      return data.map((json) => Account.fromJson(json)).toList();
     } on DioException catch (e) {
       debugPrint('Error fetching accounts: $e');
       rethrow;

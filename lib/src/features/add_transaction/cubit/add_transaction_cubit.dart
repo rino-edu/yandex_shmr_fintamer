@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fintamer/src/domain/models/account_brief.dart';
+import 'package:fintamer/src/domain/models/account.dart';
 import 'package:fintamer/src/domain/models/category.dart';
 import 'package:fintamer/src/domain/models/requests/transaction_request.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
@@ -81,7 +81,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
     }
   }
 
-  void onAccountSelected(AccountBrief account) {
+  void onAccountSelected(Account account) {
     emit(state.copyWith(selectedAccount: account));
   }
 

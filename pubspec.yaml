@@ -24,6 +24,8 @@ dependencies:
   drift_flutter: ^0.2.4
   path_provider: ^2.1.5
   sqlite3_flutter_libs: ^0.5.34
+  shake: ^3.0.0
+  sensors_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:

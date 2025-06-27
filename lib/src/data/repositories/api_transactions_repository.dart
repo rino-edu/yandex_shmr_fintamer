@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
@@ -11,8 +13,13 @@ import 'package:intl/intl.dart';
 class ApiTransactionsRepository implements ITransactionsRepository {
   final ApiClient _apiClient;
   final DriftLocalDataSource _localDataSource;
+  final _transactionsUpdateController = StreamController<void>.broadcast();
 
   ApiTransactionsRepository(this._apiClient, this._localDataSource);
+
+  @override
+  Stream<void> get onTransactionsUpdated =>
+      _transactionsUpdateController.stream;
 
   @override
   Future<Transaction> createTransaction({
@@ -24,7 +31,8 @@ class ApiTransactionsRepository implements ITransactionsRepository {
         data: request.toJson(),
       );
       final transaction = Transaction.fromJson(response.data);
-      _localDataSource.saveTransaction(transaction);
+      await _localDataSource.saveTransaction(transaction);
+      _transactionsUpdateController.add(null);
       return transaction;
     } on DioException catch (e) {
       debugPrint('Error creating transaction: $e');
@@ -36,7 +44,8 @@ class ApiTransactionsRepository implements ITransactionsRepository {
   Future<void> deleteTransaction({required int id}) async {
     try {
       await _apiClient.dio.delete('/transactions/$id');
-      _localDataSource.deleteTransactionById(id);
+      await _localDataSource.deleteTransactionById(id);
+      _transactionsUpdateController.add(null);
     } on DioException catch (e) {
       debugPrint('Error deleting transaction: $e');
       rethrow;
@@ -68,7 +77,7 @@ class ApiTransactionsRepository implements ITransactionsRepository {
       final List<dynamic> data = response.data;
       final transactions =
           data.map((json) => TransactionResponse.fromJson(json)).toList();
-      _localDataSource.saveTransactionsFromResponse(transactions);
+      await _localDataSource.saveTransactionsFromResponse(transactions);
       return transactions;
     } on DioException catch (e) {
       debugPrint('Error fetching transactions for period: $e');
@@ -87,7 +96,8 @@ class ApiTransactionsRepository implements ITransactionsRepository {
         data: request.toJson(),
       );
       final transactionResponse = TransactionResponse.fromJson(response.data);
-      _localDataSource.saveTransactionFromResponse(transactionResponse);
+      await _localDataSource.saveTransactionFromResponse(transactionResponse);
+      _transactionsUpdateController.add(null);
       return transactionResponse;
     } on DioException catch (e) {
       debugPrint('Error updating transaction: $e');
