@@ -1,45 +1,61 @@
 import 'package:dio/dio.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
+import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/domain/models/category.dart';
 import 'package:fintamer/src/domain/repositories/categories_repository.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 class ApiCategoriesRepository implements ICategoriesRepository {
   final ApiClient _apiClient;
+  final DriftLocalDataSource _localDataSource;
 
-  ApiCategoriesRepository(this._apiClient);
+  ApiCategoriesRepository(this._apiClient, this._localDataSource);
 
   @override
-  Future<List<Category>> getAllCategories() async {
+  Future<List<Category>> getCategories() async {
     try {
       final response = await _apiClient.dio.get('/categories');
       final List<dynamic> data = response.data;
-      return data.map((json) => Category.fromJson(json)).toList();
+      final categories = data.map((json) => Category.fromJson(json)).toList();
+      await _localDataSource.saveCategories(categories);
+      return categories;
     } on DioException catch (e) {
-      // Здесь можно обработать ошибки, например, логировать или пробрасывать кастомное исключение
-      debugPrint('Error fetching all categories: $e');
-      rethrow;
+      foundation.debugPrint(
+        'Error fetching categories from API: $e. Loading from local DB.',
+      );
+      try {
+        return await _localDataSource.getCategories();
+      } catch (localError) {
+        foundation.debugPrint(
+          'Error fetching categories from local DB: $localError',
+        );
+        rethrow;
+      }
     }
   }
 
   @override
-  Future<List<Category>> getExpenseCategories() async {
-    return _getCategoriesByType(isIncome: false);
-  }
-
-  @override
-  Future<List<Category>> getIncomeCategories() async {
-    return _getCategoriesByType(isIncome: true);
-  }
-
-  Future<List<Category>> _getCategoriesByType({required bool isIncome}) async {
+  Future<List<Category>> getCategoriesByType(bool isIncome) async {
     try {
       final response = await _apiClient.dio.get('/categories/type/$isIncome');
       final List<dynamic> data = response.data;
-      return data.map((json) => Category.fromJson(json)).toList();
+      final categories = data.map((json) => Category.fromJson(json)).toList();
+      return categories;
     } on DioException catch (e) {
-      debugPrint('Error fetching categories by type ($isIncome): $e');
+      foundation.debugPrint(
+        'Error fetching categories by type ($isIncome): $e',
+      );
       rethrow;
     }
+  }
+
+  @override
+  Future<List<Category>> getExpenseCategories() {
+    return getCategoriesByType(false);
+  }
+
+  @override
+  Future<List<Category>> getIncomeCategories() {
+    return getCategoriesByType(true);
   }
 }
