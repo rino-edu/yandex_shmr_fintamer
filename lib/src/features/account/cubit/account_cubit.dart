@@ -6,6 +6,7 @@ import 'package:fintamer/src/domain/models/requests/account_update_request.dart'
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/account/cubit/account_state.dart';
+import 'package:flutter/foundation.dart';
 
 class AccountCubit extends Cubit<AccountState> {
   final IAccountRepository _accountRepository;
@@ -120,6 +121,52 @@ class AccountCubit extends Cubit<AccountState> {
       final currentState = state as AccountLoaded;
       emit(
         currentState.copyWith(isBalanceVisible: !currentState.isBalanceVisible),
+      );
+    }
+  }
+
+  Future<void> changeAccountCurrency(int accountId, String newCurrency) async {
+    if (state is! AccountLoaded) return;
+    final currentState = state as AccountLoaded;
+
+    final account = currentState.accounts.firstWhere(
+      (acc) => acc.id == accountId,
+    );
+
+    final name = currentState.editedNames[accountId] ?? account.name;
+
+    emit(currentState.copyWith(isSaving: true, saveError: null));
+
+    try {
+      final request = AccountUpdateRequest(
+        name: name,
+        balance: account.balance,
+        currency: newCurrency,
+      );
+
+      final updatedAccount = await _accountRepository.updateAccount(
+        id: accountId,
+        request: request,
+      );
+
+      final newAccounts =
+          currentState.accounts.map((e) {
+            if (e.id == accountId) {
+              return updatedAccount;
+            }
+            return e;
+          }).toList();
+
+      emit(currentState.copyWith(accounts: newAccounts, isSaving: false));
+    } catch (e, st) {
+      if (kDebugMode) {
+        print('Error changing currency: $e\n$st');
+      }
+      emit(
+        currentState.copyWith(
+          saveError: 'Не удалось обновить валюту',
+          isSaving: false,
+        ),
       );
     }
   }

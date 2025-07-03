@@ -10,6 +10,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shake/shake.dart';
 import 'package:intl/intl.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
+import 'package:fintamer/src/domain/models/account.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -159,6 +160,65 @@ class _AccountViewState extends State<_AccountView> {
     );
   }
 
+  void _showCurrencyPicker(BuildContext context, Account account) {
+    final cubit = context.read<AccountCubit>();
+    showModalBottomSheet(
+      context: context,
+      builder: (bottomSheetContext) {
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildCurrencyTile(context, '₽', 'Российский рубль ₽', () {
+                cubit.changeAccountCurrency(account.id, 'RUB');
+                Navigator.pop(bottomSheetContext);
+              }),
+              _buildCurrencyTile(context, '\$', 'Американский доллар \$', () {
+                cubit.changeAccountCurrency(account.id, 'USD');
+                Navigator.pop(bottomSheetContext);
+              }),
+              _buildCurrencyTile(context, '€', 'Евро €', () {
+                cubit.changeAccountCurrency(account.id, 'EUR');
+                Navigator.pop(bottomSheetContext);
+              }),
+              _buildCancelTile(context),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCurrencyTile(
+    BuildContext context,
+    String leading,
+    String title,
+    VoidCallback onTap,
+  ) {
+    return SizedBox(
+      height: 72,
+      child: ListTile(
+        leading: Text(leading, style: const TextStyle(fontSize: 24)),
+        title: Text(title),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildCancelTile(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      color: Colors.red,
+      height: 72,
+      child: ListTile(
+        leading: const Icon(Icons.cancel_outlined, color: Colors.white),
+        title: const Text('Отмена', style: TextStyle(color: Colors.white)),
+        onTap: () => Navigator.pop(context),
+      ),
+    );
+  }
+
   Widget _buildBody(BuildContext context, AccountState state) {
     final theme = Theme.of(context);
     final cubit = context.read<AccountCubit>();
@@ -266,6 +326,10 @@ class _AccountViewState extends State<_AccountView> {
                     currencySymbol,
                     style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18),
                   ),
+                  onTap:
+                      state.isEditing
+                          ? () => _showCurrencyPicker(context, account)
+                          : null,
                 ),
               ),
             ],
