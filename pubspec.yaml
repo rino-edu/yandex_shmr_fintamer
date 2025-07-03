@@ -26,6 +26,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.34
   shake: ^3.0.0
   sensors_plus: ^6.1.1
+  fuzzy: ^0.5.1
 
 dev_dependencies:
   flutter_test:

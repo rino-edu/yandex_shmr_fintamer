@@ -9,7 +9,13 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
     with _$CategoriesDaoMixin {
   CategoriesDao(AppDatabase db) : super(db);
 
-  Future<List<CategoryDbDto>> getAllCategories() => select(categories).get();
+  Future<void> saveCategories(List<CategoryDbDto> entries) async {
+    await batch((batch) {
+      batch.insertAll(categories, entries, mode: InsertMode.replace);
+    });
+  }
+
+  Future<List<CategoryDbDto>> getCategories() => select(categories).get();
 
   Future<List<CategoryDbDto>> getIncomeCategories() {
     return (select(categories)
@@ -19,11 +25,5 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
   Future<List<CategoryDbDto>> getExpenseCategories() {
     return (select(categories)
       ..where((tbl) => tbl.isIncome.equals(false))).get();
-  }
-
-  Future<void> saveCategories(List<CategoryDbDto> entries) async {
-    await batch((batch) {
-      batch.insertAll(categories, entries, mode: InsertMode.replace);
-    });
   }
 }

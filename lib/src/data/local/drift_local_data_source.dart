@@ -1,3 +1,6 @@
+import 'package:fintamer/src/data/local/dao/accounts_dao.dart';
+import 'package:fintamer/src/data/local/dao/categories_dao.dart';
+import 'package:fintamer/src/data/local/dao/transactions_dao.dart';
 import 'package:fintamer/src/data/local/db/app_db.dart';
 import 'package:fintamer/src/data/local/mappers.dart';
 import 'package:fintamer/src/domain/models/account.dart';
@@ -10,19 +13,26 @@ class DriftLocalDataSource {
 
   DriftLocalDataSource(this._db);
 
-  Future<void> saveCategories(List<Category> categories) async {
-    final dtos = categories.map(Mappers.toCategoryDbDto).toList();
-    await _db.categoriesDao.saveCategories(dtos);
-  }
+  AccountsDao get _accountsDao => _db.accountsDao;
+  CategoriesDao get _categoriesDao => _db.categoriesDao;
+  TransactionsDao get _transactionsDao => _db.transactionsDao;
 
   Future<void> saveAccount(Account account) async {
-    final dto = Mappers.toAccountDbDto(account);
-    await _db.accountsDao.saveAccount(dto);
+    return _accountsDao.saveAccount(account.toDbDto());
+  }
+
+  Future<void> saveCategories(List<Category> categories) async {
+    final dtos = categories.map((c) => c.toDbDto()).toList();
+    return _categoriesDao.saveCategories(dtos);
+  }
+
+  Future<List<Category>> getCategories() async {
+    final dtos = await _categoriesDao.getCategories();
+    return dtos.map((dto) => dto.toDomain()).toList();
   }
 
   Future<void> saveTransaction(Transaction transaction) async {
-    final dto = Mappers.toTransactionDbDto(transaction);
-    await _db.transactionsDao.saveTransaction(dto);
+    return _transactionsDao.saveTransaction(transaction.toDbDto());
   }
 
   Future<void> saveTransactionsFromResponse(
@@ -33,8 +43,8 @@ class DriftLocalDataSource {
     final categoryDtos =
         transactions.map((e) => Mappers.toCategoryDbDto(e.category)).toList();
 
-    await _db.categoriesDao.saveCategories(categoryDtos);
-    await _db.transactionsDao.saveTransactions(transactionDtos);
+    await _categoriesDao.saveCategories(categoryDtos);
+    await _transactionsDao.saveTransactions(transactionDtos);
   }
 
   Future<void> saveTransactionFromResponse(
@@ -43,11 +53,11 @@ class DriftLocalDataSource {
     final transactionDto = Mappers.fromTransactionResponse(transaction);
     final categoryDto = Mappers.toCategoryDbDto(transaction.category);
 
-    await _db.categoriesDao.saveCategories([categoryDto]);
-    await _db.transactionsDao.saveTransaction(transactionDto);
+    await _categoriesDao.saveCategories([categoryDto]);
+    await _transactionsDao.saveTransaction(transactionDto);
   }
 
   Future<void> deleteTransactionById(int id) async {
-    await _db.transactionsDao.deleteTransaction(id);
+    await _transactionsDao.deleteTransaction(id);
   }
 }

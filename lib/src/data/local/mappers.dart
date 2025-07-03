@@ -54,3 +54,50 @@ class Mappers {
     );
   }
 }
+
+extension AccountMapper on Account {
+  AccountDbDto toDbDto() => AccountDbDto(
+    id: id,
+    userId: userId,
+    name: name,
+    balance: balance,
+    currency: currency,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
+}
+
+extension AccountDbDtoMapper on AccountDbDto {
+  Account toDomain() => Account(
+    id: id,
+    userId: userId,
+    name: name,
+    balance: balance,
+    currency: currency,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
+}
+
+extension CategoryMapper on Category {
+  CategoryDbDto toDbDto() =>
+      CategoryDbDto(id: id, name: name, emoji: emoji, isIncome: isIncome);
+}
+
+extension CategoryDbDtoMapper on CategoryDbDto {
+  Category toDomain() =>
+      Category(id: id, name: name, emoji: emoji, isIncome: isIncome);
+}
+
+extension TransactionMapper on Transaction {
+  TransactionDbDto toDbDto() => TransactionDbDto(
+    id: id,
+    accountId: accountId,
+    categoryId: categoryId,
+    amount: amount,
+    transactionDate: transactionDate,
+    comment: comment,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
+}
