@@ -108,8 +108,13 @@ class _AccountViewState extends State<_AccountView> {
               itemBuilder: (context, index) {
                 final account = state.accounts[index];
                 final amount = double.tryParse(account.balance) ?? 0;
+
+                final hasFractional =
+                    (amount.abs() - amount.abs().truncate()) > 0.001;
+                final formatPattern = hasFractional ? "#,##0.00" : "#,##0";
+
                 final formattedAmount = NumberFormat(
-                  "#,##0.00",
+                  formatPattern,
                   "ru_RU",
                 ).format(amount);
 
@@ -129,17 +134,17 @@ class _AccountViewState extends State<_AccountView> {
                 final currencySymbol = getCurrencySymbol(account.currency);
                 final balance = '$formattedAmount $currencySymbol';
 
-                return Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: Color(0xFFFEF7FF)),
-                      bottom: BorderSide(color: Color(0xFFFEF7FF)),
-                    ),
-                    color: AppColors.secondaryColor,
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
+                return Column(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFFFEF7FF)),
+                          bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                        ),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: ListTile(
                         leading: CircleAvatar(
                           radius: 14,
                           backgroundColor: Colors.white,
@@ -160,27 +165,36 @@ class _AccountViewState extends State<_AccountView> {
                               alignment: Alignment.centerRight,
                               child: Text(
                                 balance,
-                                style: theme.textTheme.bodyLarge
+                                style: theme.textTheme.bodyLarge,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      if (!state.isBalanceVisible)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 14.0,
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              'Баланс скрыт',
-                              style: theme.textTheme.bodyLarge,
-                            ),
+                    ),
+                    if (!state.isBalanceVisible)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 14.0,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'Баланс скрыт',
+                            style: theme.textTheme.bodyLarge,
                           ),
                         ),
-                      ListTile(
+                      ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFFFEF7FF)),
+                          bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                        ),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: ListTile(
                         title: Text('Валюта', style: theme.textTheme.bodyLarge),
                         trailing: Text(
                           currencySymbol,
@@ -189,8 +203,8 @@ class _AccountViewState extends State<_AccountView> {
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               },
             );
