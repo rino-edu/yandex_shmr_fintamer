@@ -37,24 +37,21 @@ class _AccountView extends StatefulWidget {
 }
 
 class _AccountViewState extends State<_AccountView> {
-  late final List<TextEditingController> _controllers;
+  List<TextEditingController>? _controllers;
   late ShakeDetector _shakeDetector;
   StreamSubscription? _accelerometerSubscription;
   Timer? _debounce;
+  bool _wasEditing = false;
 
   @override
   void initState() {
     super.initState();
-    _controllers = [];
     _shakeDetector = ShakeDetector.autoStart(
       onPhoneShake: (ShakeEvent event) {
         _toggleBalanceWithDebounce();
       },
     );
-
-    _accelerometerSubscription = accelerometerEvents.listen((
-      AccelerometerEvent event,
-    ) {
+    _accelerometerSubscription = accelerometerEvents.listen((event) {
       if (event.z < -9.5) {
         _toggleBalanceWithDebounce();
       }
@@ -72,13 +69,29 @@ class _AccountViewState extends State<_AccountView> {
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
+    _disposeControllers();
     _debounce?.cancel();
     _shakeDetector.stopListening();
     _accelerometerSubscription?.cancel();
     super.dispose();
+  }
+
+  void _disposeControllers() {
+    if (_controllers != null) {
+      for (var c in _controllers!) {
+        c.dispose();
+      }
+      _controllers = null;
+    }
+  }
+
+  void _initControllers(AccountLoaded state) {
+    _disposeControllers();
+    _controllers =
+        state.accounts.map((account) {
+          final initial = state.editedNames[account.id] ?? account.name;
+          return TextEditingController(text: initial);
+        }).toList();
   }
 
   @override
@@ -101,7 +114,18 @@ class _AccountViewState extends State<_AccountView> {
       },
       builder: (context, state) {
         final isEditing = state is AccountLoaded && state.isEditing;
-
+        if (state is AccountLoaded) {
+          if (isEditing && !_wasEditing) {
+            _initControllers(state);
+            _wasEditing = true;
+          } else if (!isEditing && _wasEditing) {
+            _disposeControllers();
+            _wasEditing = false;
+          }
+        } else {
+          _disposeControllers();
+          _wasEditing = false;
+        }
         return Scaffold(
           appBar: AppBar(
             title: const Text('Мой счет'),
@@ -146,18 +170,14 @@ class _AccountViewState extends State<_AccountView> {
       return Center(child: Text('Ошибка: ${state.message}'));
     }
     if (state is AccountLoaded) {
-      // Manage controllers
-      _controllers.forEach((c) => c.dispose());
-      _controllers.clear();
-      for (var account in state.accounts) {
-        _controllers.add(TextEditingController(text: account.name));
-      }
-
       return ListView.builder(
         itemCount: state.accounts.length,
         itemBuilder: (context, index) {
           final account = state.accounts[index];
-          final controller = _controllers[index];
+          final controller =
+              state.isEditing && _controllers != null
+                  ? _controllers![index]
+                  : null;
 
           final amount = double.tryParse(account.balance) ?? 0;
           final hasFractional =
@@ -201,7 +221,7 @@ class _AccountViewState extends State<_AccountView> {
                     child: Text('💰', style: TextStyle(fontSize: 16)),
                   ),
                   title:
-                      state.isEditing
+                      state.isEditing && controller != null
                           ? TextField(
                             controller: controller,
                             decoration: const InputDecoration(
