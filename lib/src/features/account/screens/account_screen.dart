@@ -269,8 +269,8 @@ class _AccountViewState extends State<_AccountView> {
               Container(
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Color(0xFFFEF7FF)),
-                    bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                    top: BorderSide(color: Color(0xFFCAC4D0)),
+                    bottom: BorderSide(color: Color(0xFFCAC4D0)),
                   ),
                   color: AppColors.secondaryColor,
                 ),
@@ -315,8 +315,8 @@ class _AccountViewState extends State<_AccountView> {
               Container(
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Color(0xFFFEF7FF)),
-                    bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                    top: BorderSide(color: Color(0xFFCAC4D0)),
+                    bottom: BorderSide(color: Color(0xFFCAC4D0)),
                   ),
                   color: AppColors.secondaryColor,
                 ),

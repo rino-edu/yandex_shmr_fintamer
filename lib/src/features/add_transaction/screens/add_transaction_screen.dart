@@ -241,8 +241,8 @@ class _CustomListTile extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(color: Color(0xFFFEF7FF)),
-          bottom: BorderSide(color: Color(0xFFFEF7FF)),
+          top: BorderSide(color: Color(0xFFCAC4D0)),
+          bottom: BorderSide(color: Color(0xFFCAC4D0)),
         ),
       ),
       child: ListTile(

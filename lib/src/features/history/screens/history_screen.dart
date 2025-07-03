@@ -1,6 +1,7 @@
 import 'package:fintamer/src/core/constants/app_constants.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
+import 'package:fintamer/src/features/analysis/screens/analysis_screen.dart';
 import 'package:fintamer/src/features/history/cubit/history_cubit.dart';
 import 'package:fintamer/src/features/history/cubit/history_state.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +112,19 @@ class _HistoryView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.pending_actions),
             onPressed: () {
-              // Placeholder
+              final historyState = context.read<HistoryCubit>().state;
+              if (historyState.status == HistoryStatus.success) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (_) => AnalysisScreen(
+                          isIncome: isIncome,
+                          startDate: historyState.startDate,
+                          endDate: historyState.endDate,
+                        ),
+                  ),
+                );
+              }
             },
           ),
         ],
@@ -161,8 +174,8 @@ class _HistoryView extends StatelessWidget {
                       return Container(
                         decoration: const BoxDecoration(
                           border: Border(
-                            top: BorderSide(color: Color(0xFFFEF7FF)),
-                            bottom: BorderSide(color: Color(0xFFFEF7FF)),
+                            top: BorderSide(color: Color(0xFFCAC4D0)),
+                            bottom: BorderSide(color: Color(0xFFCAC4D0)),
                           ),
                         ),
                         child: ListTile(
