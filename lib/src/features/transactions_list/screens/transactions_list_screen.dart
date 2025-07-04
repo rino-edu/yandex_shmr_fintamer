@@ -25,7 +25,8 @@ class TransactionsListScreen extends StatelessWidget {
           (context) => TransactionsListCubit(
             transactionsRepository: context.read<ITransactionsRepository>(),
             accountRepository: context.read<IAccountRepository>(),
-          )..loadTransactions(isIncome: isIncome),
+            isIncome: isIncome,
+          )..loadTransactions(),
       child: _TransactionsListView(isIncome: isIncome, title: title),
     );
   }
@@ -118,7 +119,7 @@ class _TransactionsListView extends StatelessWidget {
                             if (result == true && context.mounted) {
                               context
                                   .read<TransactionsListCubit>()
-                                  .loadTransactions(isIncome: isIncome);
+                                  .loadTransactions();
                             }
                           },
                           leading: CircleAvatar(
@@ -174,9 +175,7 @@ class _TransactionsListView extends StatelessWidget {
             ),
           );
           if (result == true && context.mounted) {
-            context.read<TransactionsListCubit>().loadTransactions(
-              isIncome: isIncome,
-            );
+            context.read<TransactionsListCubit>().loadTransactions();
           }
         },
         shape: const CircleBorder(),

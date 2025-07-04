@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fintamer/src/domain/models/transaction_response.dart';
@@ -9,15 +11,28 @@ part 'transactions_list_state.dart';
 class TransactionsListCubit extends Cubit<TransactionsListState> {
   final ITransactionsRepository _transactionsRepository;
   final IAccountRepository _accountRepository;
+  final bool _isIncome;
+  StreamSubscription? _transactionsSubscription;
 
   TransactionsListCubit({
     required ITransactionsRepository transactionsRepository,
     required IAccountRepository accountRepository,
+    required bool isIncome,
   }) : _transactionsRepository = transactionsRepository,
        _accountRepository = accountRepository,
-       super(TransactionsListInitial());
+       _isIncome = isIncome,
+       super(TransactionsListInitial()) {
+    _transactionsSubscription = _transactionsRepository.onTransactionsUpdated
+        .listen((_) => loadTransactions());
+  }
 
-  Future<void> loadTransactions({required bool isIncome}) async {
+  @override
+  Future<void> close() {
+    _transactionsSubscription?.cancel();
+    return super.close();
+  }
+
+  Future<void> loadTransactions() async {
     try {
       emit(TransactionsListLoading());
 
@@ -27,8 +42,9 @@ class TransactionsListCubit extends Cubit<TransactionsListState> {
         return;
       }
 
-      final now = DateTime.now();
-      final from = DateTime(now.year, now.month, now.day);
+      final now = DateTime.now().toUtc();
+      final from = DateTime.utc(now.year, now.month, now.day);
+      final to = DateTime.utc(now.year, now.month, now.day, 23, 59, 59, 999);
 
       final transactionFutures =
           accounts
@@ -36,7 +52,7 @@ class TransactionsListCubit extends Cubit<TransactionsListState> {
                 (account) => _transactionsRepository.getTransactionsForPeriod(
                   accountId: account.id,
                   startDate: from,
-                  endDate: from,
+                  endDate: to,
                 ),
               )
               .toList();
@@ -46,7 +62,9 @@ class TransactionsListCubit extends Cubit<TransactionsListState> {
 
       final filteredTransactions =
           allTransactions
-              .where((transaction) => transaction.category.isIncome == isIncome)
+              .where(
+                (transaction) => transaction.category.isIncome == _isIncome,
+              )
               .toList();
 
       filteredTransactions.sort(

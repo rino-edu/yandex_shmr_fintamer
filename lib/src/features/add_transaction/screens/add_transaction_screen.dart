@@ -36,10 +36,43 @@ class AddTransactionScreen extends StatelessWidget {
   }
 }
 
-class _AddTransactionView extends StatelessWidget {
+class _AddTransactionView extends StatefulWidget {
   const _AddTransactionView({required this.isIncome});
 
   final bool isIncome;
+
+  @override
+  _AddTransactionViewState createState() => _AddTransactionViewState();
+}
+
+class _AddTransactionViewState extends State<_AddTransactionView> {
+  late final TextEditingController _amountController;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  List<String> _validateFields(AddTransactionState state) {
+    final errors = <String>[];
+
+    if (state.amount.isEmpty || state.amount == '0') {
+      errors.add('Сумма');
+    }
+
+    if (state.category == null) {
+      errors.add('Категория');
+    }
+
+    return errors;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +101,46 @@ class _AddTransactionView extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
-            isIncome ? 'Мои доходы' : 'Мои расходы',
+            widget.isIncome ? 'Мои доходы' : 'Мои расходы',
             style: theme.textTheme.titleLarge,
           ),
           centerTitle: true,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: () => cubit.saveTransaction(),
+            BlocBuilder<AddTransactionCubit, AddTransactionState>(
+              builder: (context, state) {
+                return IconButton(
+                  icon: const Icon(Icons.check),
+                  onPressed: () {
+                    final validationErrors = _validateFields(state);
+                    if (validationErrors.isNotEmpty) {
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Пожалуйста, заполните следующие поля:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 4),
+                                ...validationErrors.map(
+                                  (error) => Text('• $error'),
+                                ),
+                              ],
+                            ),
+                            duration: const Duration(seconds: 4),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                    } else {
+                      cubit.saveTransaction();
+                    }
+                  },
+                );
+              },
             ),
           ],
         ),
@@ -125,21 +190,57 @@ class _AddTransactionView extends StatelessWidget {
                       }
                     },
                   ),
-                  _CustomListTile(
-                    title: 'Сумма',
-                    arrow: false,
-                    trailing: '${state.amount} ₽',
-                    onTap: () async {
-                      final newAmount = await showModalBottomSheet<String>(
-                        context: context,
-                        isScrollControlled: true,
-                        builder:
-                            (_) => _AmountKeyboard(initialValue: state.amount),
-                      );
-                      if (newAmount != null) {
-                        cubit.onAmountChanged(newAmount);
-                      }
-                    },
+                  Container(
+                    height: 70,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Color(0xFFCAC4D0)),
+                        bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                      ),
+                    ),
+                    child: ListTile(
+                      title: Text('Сумма', style: theme.textTheme.bodyLarge),
+                      trailing: SizedBox(
+                        width: 250,
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: AppColors.unselectedNavIcon,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: "Введите сумму",
+                            border: InputBorder.none,
+                            suffixText: '₽',
+                            suffixStyle: TextStyle(
+                              color: AppColors.unselectedNavIcon,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            // Разрешаем только цифры и одну точку
+                            if (value.isEmpty ||
+                                RegExp(r'^\d*\.?\d{0,1}$').hasMatch(value)) {
+                              cubit.onAmountChanged(
+                                value.isEmpty ? '0' : value,
+                              );
+                            } else {
+                              // Если введен недопустимый символ, возвращаем предыдущее значение
+                              _amountController.text = state.amount;
+                              _amountController
+                                  .selection = TextSelection.fromPosition(
+                                TextPosition(
+                                  offset: _amountController.text.length,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                   _CustomListTile(
                     title: 'Дата',
@@ -182,7 +283,7 @@ class _AddTransactionView extends StatelessWidget {
                   _CustomListTile(
                     title: 'Комментарий',
                     arrow: false,
-                    trailing: state.comment ?? 'Нажмите чтобы добавить',
+                    trailing: state.comment ?? 'Добавить',
                     onTap: () async {
                       final newComment = await Navigator.of(
                         context,
@@ -205,7 +306,7 @@ class _AddTransactionView extends StatelessWidget {
                       child: TextButton(
                         onPressed: () => cubit.deleteTransaction(),
                         child: Text(
-                          isIncome ? 'Удалить доход' : 'Удалить расход',
+                          widget.isIncome ? 'Удалить доход' : 'Удалить расход',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: Colors.red,
                           ),
@@ -246,6 +347,7 @@ class _CustomListTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
+        minTileHeight: 70,
         title: Text(title, style: theme.textTheme.bodyLarge),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -369,87 +471,6 @@ class _CommentEditScreenState extends State<_CommentEditScreen> {
             border: InputBorder.none,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _AmountKeyboard extends StatefulWidget {
-  final String initialValue;
-
-  const _AmountKeyboard({required this.initialValue});
-
-  @override
-  _AmountKeyboardState createState() => _AmountKeyboardState();
-}
-
-class _AmountKeyboardState extends State<_AmountKeyboard> {
-  late String _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.initialValue == '0' ? '' : widget.initialValue;
-  }
-
-  void _onTap(String char) {
-    setState(() {
-      if (char == '⌫') {
-        if (_value.isNotEmpty) {
-          _value = _value.substring(0, _value.length - 1);
-        }
-      } else if (char == '.' && !_value.contains('.')) {
-        _value += char;
-      } else if (char != '.') {
-        _value += char;
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              '${_value.isEmpty ? '0' : _value} ₽',
-              style: theme.textTheme.headlineMedium,
-            ),
-          ),
-          const Divider(height: 1),
-          Table(
-            children: [
-              TableRow(children: ['1', '2', '3'].map(_buildButton).toList()),
-              TableRow(children: ['4', '5', '6'].map(_buildButton).toList()),
-              TableRow(children: ['7', '8', '9'].map(_buildButton).toList()),
-              TableRow(children: ['.', '0', '⌫'].map(_buildButton).toList()),
-            ],
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                child: const Text('Готово'),
-                onPressed: () => Navigator.of(context).pop(_value),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildButton(String char) {
-    return AspectRatio(
-      aspectRatio: 2,
-      child: TextButton(
-        child: Text(char, style: const TextStyle(fontSize: 24)),
-        onPressed: () => _onTap(char),
       ),
     );
   }
