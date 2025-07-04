@@ -19,6 +19,7 @@ class AccountLoaded extends AccountState {
   final bool isSaving;
   final Map<int, String> editedNames;
   final String? saveError;
+  final Map<int, double> dailySummaries;
 
   const AccountLoaded({
     required this.accounts,
@@ -27,6 +28,7 @@ class AccountLoaded extends AccountState {
     this.isSaving = false,
     this.editedNames = const {},
     this.saveError,
+    this.dailySummaries = const {},
   });
 
   @override
@@ -37,6 +39,7 @@ class AccountLoaded extends AccountState {
     isSaving,
     editedNames,
     saveError,
+    dailySummaries,
   ];
 
   AccountLoaded copyWith({
@@ -47,6 +50,7 @@ class AccountLoaded extends AccountState {
     Map<int, String>? editedNames,
     String? saveError,
     bool clearSaveError = false,
+    Map<int, double>? dailySummaries,
   }) {
     return AccountLoaded(
       accounts: accounts ?? this.accounts,
@@ -55,6 +59,7 @@ class AccountLoaded extends AccountState {
       isSaving: isSaving ?? this.isSaving,
       editedNames: editedNames ?? this.editedNames,
       saveError: clearSaveError ? null : saveError ?? this.saveError,
+      dailySummaries: dailySummaries ?? this.dailySummaries,
     );
   }
 }

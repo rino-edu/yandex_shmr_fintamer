@@ -13,6 +13,7 @@ import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/main_screen/main_screen.dart';
 import 'package:fintamer/src/data/local/db/app_db.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
+import 'package:fintamer/src/features/splash_screen.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const MainScreen(),
+      home: const SplashScreen(),
       routes: AppRouter.routes,
     );
   }

@@ -25,7 +25,8 @@ class TransactionsListScreen extends StatelessWidget {
           (context) => TransactionsListCubit(
             transactionsRepository: context.read<ITransactionsRepository>(),
             accountRepository: context.read<IAccountRepository>(),
-          )..loadTransactions(isIncome: isIncome),
+            isIncome: isIncome,
+          )..loadTransactions(),
       child: _TransactionsListView(isIncome: isIncome, title: title),
     );
   }
@@ -104,21 +105,20 @@ class _TransactionsListView extends StatelessWidget {
                         ),
                         child: ListTile(
                           onTap: () async {
-                            final result = await Navigator.of(
-                              context,
-                            ).push<bool>(
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => AddTransactionScreen(
-                                      isIncome: isIncome,
-                                      transaction: transaction,
-                                    ),
-                              ),
+                            final result = await showModalBottomSheet<bool>(
+                              useSafeArea: true,
+                              context: context,
+                              isScrollControlled: true,
+                              builder:
+                                  (_) => AddTransactionScreen(
+                                    isIncome: isIncome,
+                                    transaction: transaction,
+                                  ),
                             );
                             if (result == true && context.mounted) {
                               context
                                   .read<TransactionsListCubit>()
-                                  .loadTransactions(isIncome: isIncome);
+                                  .loadTransactions();
                             }
                           },
                           leading: CircleAvatar(
@@ -174,9 +174,7 @@ class _TransactionsListView extends StatelessWidget {
             ),
           );
           if (result == true && context.mounted) {
-            context.read<TransactionsListCubit>().loadTransactions(
-              isIncome: isIncome,
-            );
+            context.read<TransactionsListCubit>().loadTransactions();
           }
         },
         shape: const CircleBorder(),

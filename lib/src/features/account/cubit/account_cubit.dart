@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fintamer/src/domain/models/account.dart';
 import 'package:fintamer/src/domain/models/requests/account_update_request.dart';
+import 'package:fintamer/src/domain/models/transaction_response.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/account/cubit/account_state.dart';
@@ -33,10 +35,37 @@ class AccountCubit extends Cubit<AccountState> {
         emit(const AccountError('У вас нет счетов'));
         return;
       }
-      emit(AccountLoaded(accounts: accounts));
+      final chartData = await _getChartData(accounts);
+      emit(AccountLoaded(accounts: accounts, dailySummaries: chartData));
     } catch (e) {
       emit(AccountError(e.toString()));
     }
+  }
+
+  Future<Map<int, double>> _getChartData(List<Account> accounts) async {
+    final endDate = DateTime.now();
+    final startDate = endDate.subtract(const Duration(days: 30));
+    final allTransactions = <TransactionResponse>[];
+    for (final account in accounts) {
+      final transactions = await _transactionsRepository
+          .getTransactionsForPeriod(
+            accountId: account.id,
+            startDate: startDate,
+            endDate: endDate,
+          );
+      allTransactions.addAll(transactions);
+    }
+    final groupedTransactions = groupBy(
+      allTransactions,
+      (t) => t.transactionDate.day,
+    );
+    return groupedTransactions.map((day, transactions) {
+      final total = transactions.fold<double>(0.0, (sum, t) {
+        final amount = double.tryParse(t.amount) ?? 0.0;
+        return sum + (t.category.isIncome ? amount : -amount);
+      });
+      return MapEntry(day, total);
+    });
   }
 
   void enterEditMode() {
