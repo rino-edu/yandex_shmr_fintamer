@@ -105,16 +105,15 @@ class _TransactionsListView extends StatelessWidget {
                         ),
                         child: ListTile(
                           onTap: () async {
-                            final result = await Navigator.of(
-                              context,
-                            ).push<bool>(
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => AddTransactionScreen(
-                                      isIncome: isIncome,
-                                      transaction: transaction,
-                                    ),
-                              ),
+                            final result = await showModalBottomSheet<bool>(
+                              useSafeArea: true,
+                              context: context,
+                              isScrollControlled: true,
+                              builder:
+                                  (_) => AddTransactionScreen(
+                                    isIncome: isIncome,
+                                    transaction: transaction,
+                                  ),
                             );
                             if (result == true && context.mounted) {
                               context

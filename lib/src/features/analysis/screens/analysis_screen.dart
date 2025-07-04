@@ -133,16 +133,27 @@ class _AnalysisView extends StatelessWidget {
                             ),
                           ),
                           child: ListTile(
-                            onTap: () {
-                              Navigator.of(context).push(
+                            onTap: () async {
+                              final result = await Navigator.of(
+                                context,
+                              ).push<bool>(
                                 MaterialPageRoute(
                                   builder:
                                       (_) => CategoryTransactionsScreen(
                                         categoryName: group.category.name,
                                         transactions: group.transactions,
+                                        isIncome: isIncome,
                                       ),
                                 ),
                               );
+
+                              if (result == true && context.mounted) {
+                                context.read<AnalysisCubit>().loadAnalysis(
+                                  isIncome: isIncome,
+                                  startDate: state.startDate,
+                                  endDate: state.endDate,
+                                );
+                              }
                             },
                             leading: CircleAvatar(
                               radius: 14,

@@ -11,7 +11,7 @@ class AddTransactionState extends Equatable {
     this.categories = const [],
     this.selectedAccount,
     this.category,
-    this.amount = '0',
+    this.amount = '',
     this.date,
     this.comment,
     this.initialTransaction,

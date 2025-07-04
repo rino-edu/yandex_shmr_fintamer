@@ -1,6 +1,7 @@
 import 'package:fintamer/src/core/constants/app_constants.dart';
 import 'package:fintamer/src/domain/repositories/account_repository.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
+import 'package:fintamer/src/features/add_transaction/screens/add_transaction_screen.dart';
 import 'package:fintamer/src/features/analysis/screens/analysis_screen.dart';
 import 'package:fintamer/src/features/history/cubit/history_cubit.dart';
 import 'package:fintamer/src/features/history/cubit/history_state.dart';
@@ -179,6 +180,23 @@ class _HistoryView extends StatelessWidget {
                           ),
                         ),
                         child: ListTile(
+                          onTap: () async {
+                            final result = await showModalBottomSheet<bool>(
+                              useSafeArea: true,
+                              context: context,
+                              isScrollControlled: true,
+                              builder:
+                                  (_) => AddTransactionScreen(
+                                    isIncome: isIncome,
+                                    transaction: transaction,
+                                  ),
+                            );
+                            if (result == true && context.mounted) {
+                              context.read<HistoryCubit>().loadHistory(
+                                isIncome: isIncome,
+                              );
+                            }
+                          },
                           leading: CircleAvatar(
                             radius: 14,
                             backgroundColor: AppColors.secondaryColor,

@@ -63,7 +63,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
   List<String> _validateFields(AddTransactionState state) {
     final errors = <String>[];
 
-    if (state.amount.isEmpty || state.amount == '0') {
+    if (state.amount.isEmpty || state.amount == '0' || state.amount == '') {
       errors.add('Сумма');
     }
 
@@ -204,7 +204,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                       trailing: SizedBox(
                         width: 250,
                         child: TextField(
-                          controller: _amountController,
+                          controller: _amountController..text = state.amount,
                           keyboardType: TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -302,14 +302,22 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                   ),
                   if (state.isEditing)
                     Padding(
-                      padding: const EdgeInsets.only(top: 24.0),
-                      child: TextButton(
+                      padding: const EdgeInsets.only(top: 24.0, left: 16.0, right: 16.0),
+                      child: ElevatedButton(
                         onPressed: () => cubit.deleteTransaction(),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(double.infinity, 40),
+                          backgroundColor: Colors.red, // Красный фон
+                          foregroundColor: Colors.white, // Белый текст
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30), // Закруглённые края
+                          ),
+                          textStyle: theme.textTheme.labelLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
                         child: Text(
                           widget.isIncome ? 'Удалить доход' : 'Удалить расход',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: Colors.red,
-                          ),
                         ),
                       ),
                     ),
