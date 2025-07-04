@@ -1,3 +1,4 @@
+import 'package:fintamer/src/features/main_screen/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fintamer/src/features/account/screens/account_screen.dart';
 import 'package:fintamer/src/features/articles/screens/articles_screen.dart';
@@ -11,6 +12,7 @@ abstract class AppRouter {
   static const String account = '/account';
   static const String articles = '/articles';
   static const String settings = '/settings';
+  static const String mainScreen = '/main';
 
   static String initialRoute = expenses;
 
@@ -20,5 +22,6 @@ abstract class AppRouter {
     account: (_) => const AccountScreen(),
     articles: (_) => const ArticlesScreen(),
     settings: (_) => const SettingsScreen(),
+    mainScreen: (_) => const MainScreen(),
   };
 }
