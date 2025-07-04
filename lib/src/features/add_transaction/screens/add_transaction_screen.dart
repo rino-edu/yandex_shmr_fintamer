@@ -254,7 +254,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                         context: context,
                         initialDate: state.date ?? DateTime.now(),
                         firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
+                        lastDate: DateTime.now(),
                       );
                       if (date != null) {
                         cubit.onDateChanged(date);
