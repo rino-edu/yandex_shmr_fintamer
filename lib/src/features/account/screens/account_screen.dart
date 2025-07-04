@@ -11,6 +11,7 @@ import 'package:shake/shake.dart';
 import 'package:intl/intl.dart';
 import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/domain/models/account.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -230,113 +231,183 @@ class _AccountViewState extends State<_AccountView> {
       return Center(child: Text('Ошибка: ${state.message}'));
     }
     if (state is AccountLoaded) {
-      return ListView.builder(
-        itemCount: state.accounts.length,
-        itemBuilder: (context, index) {
-          final account = state.accounts[index];
-          final controller =
-              state.isEditing && _controllers != null
-                  ? _controllers![index]
-                  : null;
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: state.accounts.length,
+              itemBuilder: (context, index) {
+                final account = state.accounts[index];
+                final controller =
+                    state.isEditing && _controllers != null
+                        ? _controllers![index]
+                        : null;
 
-          final amount = double.tryParse(account.balance) ?? 0;
-          final hasFractional =
-              (amount.abs() - amount.abs().truncate()) > 0.001;
-          final formatPattern = hasFractional ? "#,##0.00" : "#,##0";
-          final formattedAmount = NumberFormat(
-            formatPattern,
-            "ru_RU",
-          ).format(amount);
+                final amount = double.tryParse(account.balance) ?? 0;
+                final hasFractional =
+                    (amount.abs() - amount.abs().truncate()) > 0.001;
+                final formatPattern = hasFractional ? "#,##0.00" : "#,##0";
+                final formattedAmount = NumberFormat(
+                  formatPattern,
+                  "ru_RU",
+                ).format(amount);
 
-          String getCurrencySymbol(String currencyCode) {
-            switch (currencyCode) {
-              case 'RUB':
-                return '₽';
-              case 'USD':
-                return '\$';
-              case 'EUR':
-                return '€';
-              default:
-                return currencyCode;
-            }
-          }
+                String getCurrencySymbol(String currencyCode) {
+                  switch (currencyCode) {
+                    case 'RUB':
+                      return '₽';
+                    case 'USD':
+                      return '\$';
+                    case 'EUR':
+                      return '€';
+                    default:
+                      return currencyCode;
+                  }
+                }
 
-          final currencySymbol = getCurrencySymbol(account.currency);
-          final balance = '$formattedAmount $currencySymbol';
+                final currencySymbol = getCurrencySymbol(account.currency);
+                final balance = '$formattedAmount $currencySymbol';
 
-          return Column(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Color(0xFFCAC4D0)),
-                    bottom: BorderSide(color: Color(0xFFCAC4D0)),
-                  ),
-                  color: AppColors.secondaryColor,
-                ),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Colors.white,
-                    child: Text('💰', style: TextStyle(fontSize: 16)),
-                  ),
-                  title:
-                      state.isEditing && controller != null
-                          ? TextField(
-                            controller: controller,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            style: theme.textTheme.titleMedium,
-                            onChanged:
-                                (value) => cubit.onAccountNameChanged(
-                                  account.id,
-                                  value,
+                return Column(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFFCAC4D0)),
+                          bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                        ),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          radius: 14,
+                          backgroundColor: Colors.white,
+                          child: Text('💰', style: TextStyle(fontSize: 16)),
+                        ),
+                        title:
+                            state.isEditing && controller != null
+                                ? TextField(
+                                  controller: controller,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  style: theme.textTheme.titleMedium,
+                                  onChanged:
+                                      (value) => cubit.onAccountNameChanged(
+                                        account.id,
+                                        value,
+                                      ),
+                                )
+                                : Text(
+                                  state.editedNames[account.id] ?? account.name,
+                                  style: theme.textTheme.titleMedium,
                                 ),
-                          )
-                          : Text(
-                            state.editedNames[account.id] ?? account.name,
-                            style: theme.textTheme.titleMedium,
+                        trailing: SizedBox(
+                          width: 150,
+                          child: AnimatedSpoiler(
+                            isRevealed: state.isBalanceVisible,
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                balance,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ),
                           ),
-                  trailing: SizedBox(
-                    width: 150,
-                    child: AnimatedSpoiler(
-                      isRevealed: state.isBalanceVisible,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(balance, style: theme.textTheme.bodyLarge),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Color(0xFFCAC4D0)),
-                    bottom: BorderSide(color: Color(0xFFCAC4D0)),
-                  ),
-                  color: AppColors.secondaryColor,
-                ),
-                child: ListTile(
-                  title: Text('Валюта', style: theme.textTheme.bodyLarge),
-                  trailing: Text(
-                    currencySymbol,
-                    style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18),
-                  ),
-                  onTap:
-                      state.isEditing
-                          ? () => _showCurrencyPicker(context, account)
-                          : null,
-                ),
-              ),
-            ],
-          );
-        },
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFFCAC4D0)),
+                          bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                        ),
+                        color: AppColors.secondaryColor,
+                      ),
+                      child: ListTile(
+                        title: Text('Валюта', style: theme.textTheme.bodyLarge),
+                        trailing: Text(
+                          currencySymbol,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontSize: 18,
+                          ),
+                        ),
+                        onTap:
+                            state.isEditing
+                                ? () => _showCurrencyPicker(context, account)
+                                : null,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          if (state.dailySummaries.isNotEmpty)
+            _buildChart(context, state.dailySummaries),
+        ],
       );
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildChart(BuildContext context, Map<int, double> dailySummaries) {
+    final barGroups =
+        dailySummaries.entries.map((entry) {
+          return BarChartGroupData(
+            x: entry.key,
+            barRods: [
+              BarChartRodData(
+                toY: entry.value,
+                color: entry.value >= 0 ? Color(0xff2AE881) : Color(0xffFF5F00),
+                width: 8,
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ],
+          );
+        }).toList();
+
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(16),
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          barGroups: barGroups,
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    value.toInt().toString(),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+                reservedSize: 20,
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: false,
+          ),
+          gridData: FlGridData(
+            show: false,
+          ),
+        ),
+      ),
+    );
   }
 }
