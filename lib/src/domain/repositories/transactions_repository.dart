@@ -15,9 +15,9 @@ abstract class ITransactionsRepository {
     required int accountId,
   }) => getTransactionsForPeriod(accountId: accountId);
 
-  Future<Transaction> createTransaction({required TransactionRequest request});
+  Future<void> createTransaction({required TransactionRequest request});
 
-  Future<TransactionResponse> updateTransaction({
+  Future<void> updateTransaction({
     required int id,
     required TransactionRequest request,
   });
