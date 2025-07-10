@@ -22,8 +22,7 @@ class ApiCategoriesRepository implements ICategoriesRepository {
   Future<List<Category>> getCategories() async {
     try {
       final response = await _apiClient.dio.get('/categories');
-      final List<dynamic> data = response.data;
-      final categories = data.map((json) => Category.fromJson(json)).toList();
+      final categories = response.data as List<Category>;
       await _localDataSource.saveCategories(categories);
       _networkStatusCubit.setOnline();
       return categories;
@@ -48,8 +47,7 @@ class ApiCategoriesRepository implements ICategoriesRepository {
   Future<List<Category>> getCategoriesByType(bool isIncome) async {
     try {
       final response = await _apiClient.dio.get('/categories/type/$isIncome');
-      final List<dynamic> data = response.data;
-      final categories = data.map((json) => Category.fromJson(json)).toList();
+      final categories = response.data as List<Category>;
       // We can also cache these results, but it might mix with the full list.
       // For now, let's just ensure it works. A more robust caching would be needed for full offline.
       _networkStatusCubit.setOnline();

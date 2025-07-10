@@ -16,8 +16,10 @@ import 'package:fintamer/src/data/local/db/app_db.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/data/services/synchronization_service.dart';
 import 'package:fintamer/src/features/splash_screen.dart';
+import 'package:worker_manager/worker_manager.dart';
 
 Future<void> main() async {
+  await workerManager.init();
   await dotenv.load(fileName: ".env");
   runApp(FintamerApp(appDatabase: AppDatabase()));
 }

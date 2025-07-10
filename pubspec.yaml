@@ -30,6 +30,7 @@ dependencies:
   fl_chart: ^1.0.0
   collection: ^1.19.1
   dio_smart_retry: ^7.0.1
+  worker_manager: ^7.2.6
 
 dev_dependencies:
   flutter_test:

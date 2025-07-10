@@ -94,9 +94,7 @@ class ApiTransactionsRepository implements ITransactionsRepository {
         queryParameters: queryParameters,
       );
 
-      final List<dynamic> data = response.data;
-      final transactions =
-          data.map((json) => TransactionResponse.fromJson(json)).toList();
+      final transactions = response.data as List<TransactionResponse>;
       await _localDataSource.saveTransactionsFromResponse(transactions);
       _networkStatusCubit.setOnline();
       return transactions;

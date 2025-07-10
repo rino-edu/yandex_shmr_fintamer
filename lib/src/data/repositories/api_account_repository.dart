@@ -25,8 +25,7 @@ class ApiAccountRepository implements IAccountRepository {
   Future<List<Account>> getAccounts() async {
     try {
       final response = await _apiClient.dio.get('/accounts');
-      final List<dynamic> data = response.data;
-      final accounts = data.map((json) => Account.fromJson(json)).toList();
+      final accounts = response.data as List<Account>;
       await _localDataSource.saveAccounts(accounts);
       _networkStatusCubit.setOnline();
       return accounts;
@@ -49,7 +48,7 @@ class ApiAccountRepository implements IAccountRepository {
   Future<AccountResponse> getAccount({required int id}) async {
     try {
       final response = await _apiClient.dio.get('/accounts/$id');
-      final accountResponse = AccountResponse.fromJson(response.data);
+      final accountResponse = response.data as AccountResponse;
       _networkStatusCubit.setOnline();
       return accountResponse;
     } on NetworkException catch (e) {
@@ -73,6 +72,7 @@ class ApiAccountRepository implements IAccountRepository {
         '/accounts/$id',
         data: request.toJson(),
       );
+      // PUT response might not be parsed, assuming it returns the updated Account object
       final account = Account.fromJson(response.data);
       _localDataSource.saveAccount(account);
       _networkStatusCubit.setOnline();
