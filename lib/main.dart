@@ -13,6 +13,7 @@ import 'package:fintamer/src/domain/repositories/transactions_repository.dart';
 import 'package:fintamer/src/features/main_screen/main_screen.dart';
 import 'package:fintamer/src/data/local/db/app_db.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
+import 'package:fintamer/src/data/services/synchronization_service.dart';
 import 'package:fintamer/src/features/splash_screen.dart';
 
 Future<void> main() async {
@@ -30,12 +31,21 @@ class FintamerApp extends StatelessWidget {
     final DriftLocalDataSource localDataSource = DriftLocalDataSource(
       appDatabase,
     );
+    final SynchronizationService synchronizationService =
+        SynchronizationService(apiClient, appDatabase);
     return MultiRepositoryProvider(
       providers: [
+        RepositoryProvider<SynchronizationService>(
+          create: (context) => synchronizationService,
+        ),
         RepositoryProvider<ITransactionsRepository>(
           create:
-              (context) =>
-                  ApiTransactionsRepository(apiClient, localDataSource),
+              (context) => ApiTransactionsRepository(
+                apiClient,
+                localDataSource,
+                appDatabase,
+                synchronizationService,
+              ),
         ),
         RepositoryProvider<ICategoriesRepository>(
           create:

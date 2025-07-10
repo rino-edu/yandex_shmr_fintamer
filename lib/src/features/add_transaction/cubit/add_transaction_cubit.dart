@@ -35,7 +35,6 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   final ICategoriesRepository _categoriesRepository;
   final bool isIncome;
   final TransactionResponse? transaction;
-  final int _userId = 136;
 
   void init() {
     _loadAccounts();
@@ -45,7 +44,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
       final tr = state.initialTransaction!;
       emit(
         state.copyWith(
-          category: tr.category,
+          category: () => tr.category,
           amount: tr.amount,
           date: tr.transactionDate,
           comment: tr.comment,
@@ -61,23 +60,42 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
       final accounts = await _accountRepository.getAccounts();
       if (accounts.isNotEmpty) {
         emit(
-          state.copyWith(accounts: accounts, selectedAccount: accounts.first),
+          state.copyWith(
+            accounts: accounts,
+            selectedAccount:
+                state.isEditing
+                    ? accounts.firstWhere(
+                      (a) => a.id == state.initialTransaction!.account.id,
+                      orElse: () => accounts.first,
+                    )
+                    : accounts.first,
+          ),
         );
       }
     } catch (e) {
-      // Handle error
+      emit(
+        state.copyWith(
+          status: AddTransactionStatus.failure,
+          errorMessage: 'Failed to load accounts',
+        ),
+      );
     }
   }
 
   Future<void> _loadCategories() async {
     try {
       final categories =
-          state.isIncome
+          isIncome
               ? await _categoriesRepository.getIncomeCategories()
               : await _categoriesRepository.getExpenseCategories();
       emit(state.copyWith(categories: categories));
     } catch (e) {
-      // Handle error
+      emit(
+        state.copyWith(
+          status: AddTransactionStatus.failure,
+          errorMessage: 'Failed to load categories',
+        ),
+      );
     }
   }
 
@@ -90,7 +108,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   }
 
   void onCategorySelected(Category category) {
-    emit(state.copyWith(category: category));
+    emit(state.copyWith(category: () => category));
   }
 
   void onDateChanged(DateTime date) {
@@ -118,7 +136,15 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   Future<void> saveTransaction() async {
     if (state.category == null ||
         state.date == null ||
-        state.selectedAccount == null) {
+        state.selectedAccount == null ||
+        state.amount.isEmpty) {
+      emit(
+        state.copyWith(
+          status: AddTransactionStatus.failure,
+          errorMessage: 'Please fill all required fields.',
+        ),
+      );
+      emit(state.copyWith(status: AddTransactionStatus.initial)); // reset
       return;
     }
     emit(state.copyWith(status: AddTransactionStatus.loading));
@@ -143,7 +169,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
       emit(
         state.copyWith(
           status: AddTransactionStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: 'An error occurred: ${e.toString()}',
         ),
       );
     }
@@ -161,7 +187,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
       emit(
         state.copyWith(
           status: AddTransactionStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: 'An error occurred: ${e.toString()}',
         ),
       );
     }

@@ -205,7 +205,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                         width: 250,
                         child: TextField(
                           controller: _amountController..text = state.amount,
-                          keyboardType: TextInputType.numberWithOptions(
+                          keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
                           textAlign: TextAlign.end,
@@ -302,15 +302,21 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                   ),
                   if (state.isEditing)
                     Padding(
-                      padding: const EdgeInsets.only(top: 24.0, left: 16.0, right: 16.0),
+                      padding: const EdgeInsets.only(
+                        top: 24.0,
+                        left: 16.0,
+                        right: 16.0,
+                      ),
                       child: ElevatedButton(
                         onPressed: () => cubit.deleteTransaction(),
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(double.infinity, 40),
+                          minimumSize: const Size(double.infinity, 40),
                           backgroundColor: Colors.red, // Красный фон
                           foregroundColor: Colors.white, // Белый текст
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30), // Закруглённые края
+                            borderRadius: BorderRadius.circular(
+                              30,
+                            ), // Закруглённые края
                           ),
                           textStyle: theme.textTheme.labelLarge?.copyWith(
                             color: Colors.white,
@@ -367,13 +373,14 @@ class _CustomListTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            arrow
-                ? Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Color(0x4D3C3C43),
-                  size: 16,
-                )
-                : SizedBox(width: 1),
+            if (arrow)
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Color(0x4D3C3C43),
+                size: 16,
+              )
+            else
+              const SizedBox(width: 1),
           ],
         ),
         onTap: onTap,

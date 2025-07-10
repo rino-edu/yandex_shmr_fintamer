@@ -9,15 +9,14 @@ class AccountsDao extends DatabaseAccessor<AppDatabase>
     with _$AccountsDaoMixin {
   AccountsDao(AppDatabase db) : super(db);
 
-  Future<List<AccountDbDto>> getAccounts() => select(accounts).get();
+  Future<void> saveAccount(AccountDbDto account) =>
+      update(accounts).replace(account);
 
-  Future<void> saveAccount(AccountDbDto entry) {
-    return into(accounts).insert(entry, mode: InsertMode.replace);
-  }
-
-  Future<void> saveAccounts(List<AccountDbDto> entries) async {
+  Future<void> saveAccounts(List<AccountDbDto> accountList) async {
     await batch((batch) {
-      batch.insertAll(accounts, entries, mode: InsertMode.replace);
+      batch.insertAll(accounts, accountList, mode: InsertMode.replace);
     });
   }
+
+  Future<List<AccountDbDto>> getAccounts() => select(accounts).get();
 }

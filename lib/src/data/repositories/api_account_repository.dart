@@ -19,10 +19,19 @@ class ApiAccountRepository implements IAccountRepository {
     try {
       final response = await _apiClient.dio.get('/accounts');
       final List<dynamic> data = response.data;
-      return data.map((json) => Account.fromJson(json)).toList();
+      final accounts = data.map((json) => Account.fromJson(json)).toList();
+      await _localDataSource.saveAccounts(accounts);
+      return accounts;
     } on DioException catch (e) {
-      debugPrint('Error fetching accounts: $e');
-      rethrow;
+      debugPrint(
+        'Error fetching accounts from API: $e. Loading from local DB.',
+      );
+      try {
+        return await _localDataSource.getAccounts();
+      } catch (localError) {
+        debugPrint('Error fetching accounts from local DB: $localError');
+        rethrow;
+      }
     }
   }
 

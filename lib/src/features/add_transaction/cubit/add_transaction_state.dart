@@ -38,11 +38,12 @@ class AddTransactionState extends Equatable {
     List<Account>? accounts,
     List<Category>? categories,
     Account? selectedAccount,
-    Category? category,
+    // Use ValueGetter<Category?> to allow nullable values
+    ValueGetter<Category?>? category,
     String? amount,
     DateTime? date,
     String? comment,
-    TransactionResponse? initialTransaction,
+    ValueGetter<TransactionResponse?>? initialTransaction,
     String? errorMessage,
   }) {
     return AddTransactionState(
@@ -51,11 +52,14 @@ class AddTransactionState extends Equatable {
       accounts: accounts ?? this.accounts,
       categories: categories ?? this.categories,
       selectedAccount: selectedAccount ?? this.selectedAccount,
-      category: category ?? this.category,
+      category: category != null ? category() : this.category,
       amount: amount ?? this.amount,
       date: date ?? this.date,
       comment: comment ?? this.comment,
-      initialTransaction: initialTransaction ?? this.initialTransaction,
+      initialTransaction:
+          initialTransaction != null
+              ? initialTransaction()
+              : this.initialTransaction,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

@@ -40,12 +40,21 @@ class ApiCategoriesRepository implements ICategoriesRepository {
       final response = await _apiClient.dio.get('/categories/type/$isIncome');
       final List<dynamic> data = response.data;
       final categories = data.map((json) => Category.fromJson(json)).toList();
+      // We can also cache these results, but it might mix with the full list.
+      // For now, let's just ensure it works. A more robust caching would be needed for full offline.
       return categories;
     } on DioException catch (e) {
       foundation.debugPrint(
-        'Error fetching categories by type ($isIncome): $e',
+        'Error fetching categories by type ($isIncome) from API: $e. Loading from local DB.',
       );
-      rethrow;
+      try {
+        return await _localDataSource.getCategoriesByType(isIncome);
+      } catch (localError) {
+        foundation.debugPrint(
+          'Error fetching categories by type from local DB: $localError',
+        );
+        rethrow;
+      }
     }
   }
 

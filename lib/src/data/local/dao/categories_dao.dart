@@ -9,21 +9,16 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
     with _$CategoriesDaoMixin {
   CategoriesDao(AppDatabase db) : super(db);
 
-  Future<void> saveCategories(List<CategoryDbDto> entries) async {
+  Future<void> saveCategories(List<CategoryDbDto> categoryList) async {
     await batch((batch) {
-      batch.insertAll(categories, entries, mode: InsertMode.replace);
+      batch.insertAll(categories, categoryList, mode: InsertMode.replace);
     });
   }
 
   Future<List<CategoryDbDto>> getCategories() => select(categories).get();
 
-  Future<List<CategoryDbDto>> getIncomeCategories() {
+  Future<List<CategoryDbDto>> getCategoriesByType(bool isIncome) {
     return (select(categories)
-      ..where((tbl) => tbl.isIncome.equals(true))).get();
-  }
-
-  Future<List<CategoryDbDto>> getExpenseCategories() {
-    return (select(categories)
-      ..where((tbl) => tbl.isIncome.equals(false))).get();
+      ..where((c) => c.isIncome.equals(isIncome))).get();
   }
 }
