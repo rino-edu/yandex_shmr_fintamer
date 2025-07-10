@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:fintamer/src/core/error/exceptions.dart';
 import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
@@ -29,17 +30,18 @@ class ApiAccountRepository implements IAccountRepository {
       await _localDataSource.saveAccounts(accounts);
       _networkStatusCubit.setOnline();
       return accounts;
-    } on DioException catch (e) {
-      debugPrint(
-        'Error fetching accounts from API: $e. Loading from local DB.',
-      );
+    } on NetworkException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}. Loading from local DB.');
       _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getAccounts();
-      } catch (localError) {
-        debugPrint('Error fetching accounts from local DB: $localError');
-        rethrow;
+      } catch (_) {
+        throw CacheException(message: 'Failed to load accounts from cache.');
       }
+    } on ServerException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
     }
   }
 
@@ -47,10 +49,15 @@ class ApiAccountRepository implements IAccountRepository {
   Future<AccountResponse> getAccount({required int id}) async {
     try {
       final response = await _apiClient.dio.get('/accounts/$id');
+      final accountResponse = AccountResponse.fromJson(response.data);
       _networkStatusCubit.setOnline();
-      return AccountResponse.fromJson(response.data);
-    } on DioException catch (e) {
-      debugPrint('Error fetching account: $e');
+      return accountResponse;
+    } on NetworkException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
+    } on ServerException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
       _networkStatusCubit.setOffline();
       rethrow;
     }
@@ -70,8 +77,12 @@ class ApiAccountRepository implements IAccountRepository {
       _localDataSource.saveAccount(account);
       _networkStatusCubit.setOnline();
       return account;
-    } on DioException catch (e) {
-      debugPrint('Error updating account: $e');
+    } on NetworkException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
+    } on ServerException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
       _networkStatusCubit.setOffline();
       rethrow;
     }

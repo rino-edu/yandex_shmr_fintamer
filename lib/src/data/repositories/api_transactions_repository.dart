@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:drift/drift.dart';
+import 'package:fintamer/src/core/error/exceptions.dart';
 import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 
 import 'package:dio/dio.dart';
@@ -99,10 +100,8 @@ class ApiTransactionsRepository implements ITransactionsRepository {
       await _localDataSource.saveTransactionsFromResponse(transactions);
       _networkStatusCubit.setOnline();
       return transactions;
-    } on DioException catch (e) {
-      debugPrint(
-        'Error fetching transactions for period from API: $e. Loading from local DB.',
-      );
+    } on NetworkException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}. Loading from local DB.');
       _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getTransactionsWithDetailsForPeriod(
@@ -110,12 +109,15 @@ class ApiTransactionsRepository implements ITransactionsRepository {
           startDate: startDate,
           endDate: endDate,
         );
-      } catch (localError) {
-        debugPrint(
-          'Error fetching transactions for period from local DB: $localError',
+      } catch (_) {
+        throw CacheException(
+          message: 'Failed to load transactions from cache.',
         );
-        rethrow;
       }
+    } on ServerException catch (e) {
+      debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
     }
   }
 

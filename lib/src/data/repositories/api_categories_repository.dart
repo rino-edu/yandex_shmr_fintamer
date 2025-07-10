@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:fintamer/src/core/error/exceptions.dart';
 import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
@@ -26,19 +27,20 @@ class ApiCategoriesRepository implements ICategoriesRepository {
       await _localDataSource.saveCategories(categories);
       _networkStatusCubit.setOnline();
       return categories;
-    } on DioException catch (e) {
+    } on NetworkException catch (e) {
       foundation.debugPrint(
-        'Error fetching categories from API: $e. Loading from local DB.',
+        '${e.runtimeType}: ${e.message}. Loading from local DB.',
       );
       _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getCategories();
-      } catch (localError) {
-        foundation.debugPrint(
-          'Error fetching categories from local DB: $localError',
-        );
-        rethrow;
+      } catch (_) {
+        throw CacheException(message: 'Failed to load categories from cache.');
       }
+    } on ServerException catch (e) {
+      foundation.debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
     }
   }
 
@@ -52,19 +54,22 @@ class ApiCategoriesRepository implements ICategoriesRepository {
       // For now, let's just ensure it works. A more robust caching would be needed for full offline.
       _networkStatusCubit.setOnline();
       return categories;
-    } on DioException catch (e) {
+    } on NetworkException catch (e) {
       foundation.debugPrint(
-        'Error fetching categories by type ($isIncome) from API: $e. Loading from local DB.',
+        '${e.runtimeType} for type ($isIncome): ${e.message}. Loading from local DB.',
       );
       _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getCategoriesByType(isIncome);
-      } catch (localError) {
-        foundation.debugPrint(
-          'Error fetching categories by type from local DB: $localError',
+      } catch (_) {
+        throw CacheException(
+          message: 'Failed to load categories by type from cache.',
         );
-        rethrow;
       }
+    } on ServerException catch (e) {
+      foundation.debugPrint('${e.runtimeType}: ${e.message}.');
+      _networkStatusCubit.setOffline();
+      rethrow;
     }
   }
 
