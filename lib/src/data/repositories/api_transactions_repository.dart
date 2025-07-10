@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:drift/drift.dart';
+import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 
 import 'package:dio/dio.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
@@ -20,6 +21,7 @@ class ApiTransactionsRepository implements ITransactionsRepository {
   final DriftLocalDataSource _localDataSource;
   final AppDatabase _db;
   final SynchronizationService _syncService;
+  final NetworkStatusCubit _networkStatusCubit;
   final _transactionsUpdateController = StreamController<void>.broadcast();
 
   ApiTransactionsRepository(
@@ -27,6 +29,7 @@ class ApiTransactionsRepository implements ITransactionsRepository {
     this._localDataSource,
     this._db,
     this._syncService,
+    this._networkStatusCubit,
   );
 
   @override
@@ -94,11 +97,13 @@ class ApiTransactionsRepository implements ITransactionsRepository {
       final transactions =
           data.map((json) => TransactionResponse.fromJson(json)).toList();
       await _localDataSource.saveTransactionsFromResponse(transactions);
+      _networkStatusCubit.setOnline();
       return transactions;
     } on DioException catch (e) {
       debugPrint(
         'Error fetching transactions for period from API: $e. Loading from local DB.',
       );
+      _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getTransactionsWithDetailsForPeriod(
           accountId: accountId,

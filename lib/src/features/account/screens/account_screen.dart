@@ -400,12 +400,8 @@ class _AccountViewState extends State<_AccountView> {
               ),
             ),
           ),
-          borderData: FlBorderData(
-            show: false,
-          ),
-          gridData: FlGridData(
-            show: false,
-          ),
+          borderData: FlBorderData(show: false),
+          gridData: FlGridData(show: false),
         ),
       ),
     );

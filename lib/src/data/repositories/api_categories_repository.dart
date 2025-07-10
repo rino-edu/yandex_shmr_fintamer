@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/domain/models/category.dart';
@@ -8,8 +9,13 @@ import 'package:flutter/foundation.dart' as foundation;
 class ApiCategoriesRepository implements ICategoriesRepository {
   final ApiClient _apiClient;
   final DriftLocalDataSource _localDataSource;
+  final NetworkStatusCubit _networkStatusCubit;
 
-  ApiCategoriesRepository(this._apiClient, this._localDataSource);
+  ApiCategoriesRepository(
+    this._apiClient,
+    this._localDataSource,
+    this._networkStatusCubit,
+  );
 
   @override
   Future<List<Category>> getCategories() async {
@@ -18,11 +24,13 @@ class ApiCategoriesRepository implements ICategoriesRepository {
       final List<dynamic> data = response.data;
       final categories = data.map((json) => Category.fromJson(json)).toList();
       await _localDataSource.saveCategories(categories);
+      _networkStatusCubit.setOnline();
       return categories;
     } on DioException catch (e) {
       foundation.debugPrint(
         'Error fetching categories from API: $e. Loading from local DB.',
       );
+      _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getCategories();
       } catch (localError) {
@@ -42,11 +50,13 @@ class ApiCategoriesRepository implements ICategoriesRepository {
       final categories = data.map((json) => Category.fromJson(json)).toList();
       // We can also cache these results, but it might mix with the full list.
       // For now, let's just ensure it works. A more robust caching would be needed for full offline.
+      _networkStatusCubit.setOnline();
       return categories;
     } on DioException catch (e) {
       foundation.debugPrint(
         'Error fetching categories by type ($isIncome) from API: $e. Loading from local DB.',
       );
+      _networkStatusCubit.setOffline();
       try {
         return await _localDataSource.getCategoriesByType(isIncome);
       } catch (localError) {

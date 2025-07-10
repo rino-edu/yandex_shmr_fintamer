@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/features/account/screens/account_screen.dart';
 import 'package:fintamer/src/features/articles/screens/articles_screen.dart';
 import 'package:fintamer/src/features/expenses/screens/expenses_screen.dart';
 import 'package:fintamer/src/features/incomes/screens/incomes_screen.dart';
+import 'package:fintamer/src/features/main_screen/widgets/offline_banner.dart';
 import 'package:fintamer/src/features/settings/screens/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -33,7 +36,23 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: SafeArea(
+        child: Column(
+          children: [
+            BlocBuilder<NetworkStatusCubit, NetworkStatus>(
+              builder: (context, state) {
+                if (state == NetworkStatus.offline) {
+                  return const OfflineBanner();
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            Expanded(
+              child: IndexedStack(index: _selectedIndex, children: _screens),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,

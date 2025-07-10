@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/core/router/app_router.dart';
 import 'package:fintamer/src/core/theme/app_theme.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
@@ -33,29 +34,46 @@ class FintamerApp extends StatelessWidget {
     );
     final SynchronizationService synchronizationService =
         SynchronizationService(apiClient, appDatabase);
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider<SynchronizationService>(
-          create: (context) => synchronizationService,
-        ),
-        RepositoryProvider<ITransactionsRepository>(
-          create:
-              (context) => ApiTransactionsRepository(
-                apiClient,
-                localDataSource,
-                appDatabase,
-                synchronizationService,
-              ),
-        ),
-        RepositoryProvider<ICategoriesRepository>(
-          create:
-              (context) => ApiCategoriesRepository(apiClient, localDataSource),
-        ),
-        RepositoryProvider<IAccountRepository>(
-          create: (context) => ApiAccountRepository(apiClient, localDataSource),
+        BlocProvider<NetworkStatusCubit>(
+          create: (context) => NetworkStatusCubit(),
         ),
       ],
-      child: const MyApp(),
+      child: MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<SynchronizationService>(
+            create: (context) => synchronizationService,
+          ),
+          RepositoryProvider<ITransactionsRepository>(
+            create:
+                (context) => ApiTransactionsRepository(
+                  apiClient,
+                  localDataSource,
+                  appDatabase,
+                  synchronizationService,
+                  context.read<NetworkStatusCubit>(),
+                ),
+          ),
+          RepositoryProvider<ICategoriesRepository>(
+            create:
+                (context) => ApiCategoriesRepository(
+                  apiClient,
+                  localDataSource,
+                  context.read<NetworkStatusCubit>(),
+                ),
+          ),
+          RepositoryProvider<IAccountRepository>(
+            create:
+                (context) => ApiAccountRepository(
+                  apiClient,
+                  localDataSource,
+                  context.read<NetworkStatusCubit>(),
+                ),
+          ),
+        ],
+        child: const MyApp(),
+      ),
     );
   }
 }
