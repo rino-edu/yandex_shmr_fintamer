@@ -9,6 +9,8 @@ import 'package:fintamer/src/features/expenses/screens/expenses_screen.dart';
 import 'package:fintamer/src/features/incomes/screens/incomes_screen.dart';
 import 'package:fintamer/src/features/main_screen/widgets/offline_banner.dart';
 import 'package:fintamer/src/features/settings/screens/settings_screen.dart';
+import 'package:fintamer/src/core/haptics/haptic_cubit.dart';
+import 'package:flutter/services.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -29,6 +31,9 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   void _onItemTapped(int index) {
+    if (context.read<HapticCubit>().state) {
+      HapticFeedback.mediumImpact();
+    }
     setState(() {
       _selectedIndex = index;
     });

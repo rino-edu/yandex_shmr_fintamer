@@ -3,6 +3,8 @@ import 'package:fintamer/src/core/theme/cubit/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:fintamer/src/core/haptics/haptic_cubit.dart';
+import 'package:flutter/services.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -108,6 +110,32 @@ class SettingsScreen extends StatelessWidget {
                       },
                     );
                   },
+                ),
+              );
+            },
+          ),
+          BlocBuilder<HapticCubit, bool>(
+            builder: (context, isHapticEnabled) {
+              return Container(
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFFCAC4D0))),
+                ),
+                child: ListTile(
+                  minTileHeight: 56,
+                  title: Text(
+                    'Тактильный отклик',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  trailing: Switch(
+                    value: isHapticEnabled,
+                    onChanged: (value) {
+                      context.read<HapticCubit>().setHapticPreference(value);
+                      if (value) {
+                        HapticFeedback.mediumImpact();
+                      }
+                    },
+                  ),
+                  onTap: null,
                 ),
               );
             },

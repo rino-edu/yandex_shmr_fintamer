@@ -6,6 +6,7 @@ import 'package:fintamer/src/core/router/app_router.dart';
 import 'package:fintamer/src/core/theme/app_theme.dart';
 import 'package:fintamer/src/core/theme/cubit/theme_cubit.dart';
 import 'package:fintamer/src/core/theme/cubit/color_cubit.dart';
+import 'package:fintamer/src/core/haptics/haptic_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/repositories/api_account_repository.dart';
 import 'package:fintamer/src/data/repositories/api_categories_repository.dart';
@@ -47,6 +48,7 @@ class FintamerApp extends StatelessWidget {
         ),
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
         BlocProvider<ColorCubit>(create: (context) => ColorCubit()),
+        BlocProvider<HapticCubit>(create: (context) => HapticCubit()),
       ],
       child: MultiRepositoryProvider(
         providers: [
