@@ -14,7 +14,7 @@ abstract class AppRouter {
   static const String settings = '/settings';
   static const String mainScreen = '/main';
 
-  static String initialRoute = expenses;
+  static String initialRoute = mainScreen;
 
   static final Map<String, WidgetBuilder> routes = {
     expenses: (_) => const ExpensesScreen(),

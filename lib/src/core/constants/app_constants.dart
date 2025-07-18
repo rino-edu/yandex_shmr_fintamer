@@ -7,9 +7,10 @@ abstract class AppColors {
   static const Color surfaceContainer = Color(0xFFF3EDF7);
   static const Color selectedNavText = Color(0xFF1D1B20);
   static const Color unselectedNavIcon = Color(0xFF49454F);
+  static const Color lightScaffoldBackground = Color(0xFFfef7ff);
 
   // Dark Theme (placeholders for now)
-  static const Color darkBackground = Color(0xFF1C1B1F);
+  static const Color darkScaffoldBackground = Color(0xFF1C1B1F);
   static const Color darkSurfaceContainer = Color(0xFF2B2930);
   static const Color darkUnselectedNavIcon = Color(0xFFCAC4D0);
 
