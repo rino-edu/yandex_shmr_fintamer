@@ -31,6 +31,10 @@ dependencies:
   collection: ^1.19.1
   dio_smart_retry: ^7.0.1
   worker_manager: ^7.2.6
+  shared_preferences: ^2.5.3
+  flutter_colorpicker: ^1.1.0
+  local_auth: ^2.3.0
+  flutter_secure_storage: 9.2.4
 
 dev_dependencies:
   flutter_test:

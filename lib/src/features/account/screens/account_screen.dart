@@ -132,7 +132,7 @@ class _AccountViewState extends State<_AccountView> {
           appBar: AppBar(
             title: const Text('Мой счет'),
             centerTitle: true,
-            backgroundColor: AppColors.primaryColor,
+            backgroundColor: Theme.of(context).primaryColor,
             titleTextStyle: theme.textTheme.titleLarge,
             leading:
                 isEditing

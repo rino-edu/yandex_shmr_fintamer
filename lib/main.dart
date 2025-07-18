@@ -4,6 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/core/router/app_router.dart';
 import 'package:fintamer/src/core/theme/app_theme.dart';
+import 'package:fintamer/src/core/theme/cubit/theme_cubit.dart';
+import 'package:fintamer/src/core/theme/cubit/color_cubit.dart';
+import 'package:fintamer/src/core/haptics/haptic_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/repositories/api_account_repository.dart';
 import 'package:fintamer/src/data/repositories/api_categories_repository.dart';
@@ -15,12 +18,16 @@ import 'package:fintamer/src/features/main_screen/main_screen.dart';
 import 'package:fintamer/src/data/local/db/app_db.dart';
 import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/data/services/synchronization_service.dart';
-import 'package:fintamer/src/features/splash_screen.dart';
 import 'package:worker_manager/worker_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:fintamer/src/features/auth/cubit/auth_cubit.dart';
+import 'package:fintamer/src/features/auth/screens/pin_code_screen.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await workerManager.init();
   await dotenv.load(fileName: ".env");
+
   runApp(FintamerApp(appDatabase: AppDatabase()));
 }
 
@@ -41,6 +48,10 @@ class FintamerApp extends StatelessWidget {
         BlocProvider<NetworkStatusCubit>(
           create: (context) => NetworkStatusCubit(),
         ),
+        BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
+        BlocProvider<ColorCubit>(create: (context) => ColorCubit()),
+        BlocProvider<HapticCubit>(create: (context) => HapticCubit()),
+        BlocProvider<AuthCubit>(create: (context) => AuthCubit()),
       ],
       child: MultiRepositoryProvider(
         providers: [
@@ -74,24 +85,44 @@ class FintamerApp extends StatelessWidget {
                 ),
           ),
         ],
-        child: const MyApp(),
+        child: MaterialApp(
+          title: 'Fintamer',
+          builder: (context, child) {
+            final color = context.watch<ColorCubit>().state;
+            final themeMode = context.watch<ThemeCubit>().state;
+            ThemeData theme;
+            switch (themeMode) {
+              case ThemeMode.light:
+                theme = AppTheme.lightTheme(color);
+                break;
+              case ThemeMode.dark:
+                theme = AppTheme.darkTheme(color);
+                break;
+              case ThemeMode.system:
+                final brightness = MediaQuery.of(context).platformBrightness;
+                theme =
+                    brightness == Brightness.dark
+                        ? AppTheme.darkTheme(color)
+                        : AppTheme.lightTheme(color);
+                break;
+            }
+            return Theme(data: theme, child: child!);
+          },
+          home: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state.authStatus == AuthStatus.authenticated) {
+                return const MainScreen();
+              }
+              if (state.authStatus == AuthStatus.unauthenticated) {
+                return const PinCodeScreen(mode: PinCodeMode.enter);
+              }
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            },
+          ),
+        ),
       ),
-    );
-  }
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fintamer',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: const SplashScreen(),
-      routes: AppRouter.routes,
     );
   }
 }

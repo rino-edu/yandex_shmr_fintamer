@@ -41,7 +41,7 @@ class _CategoryTransactionsScreenState
       appBar: AppBar(
         title: Text(widget.categoryName),
         centerTitle: true,
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         titleTextStyle: theme.textTheme.titleLarge,
       ),
       body: ListView.builder(
