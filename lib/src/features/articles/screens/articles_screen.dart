@@ -51,7 +51,7 @@ class _ArticlesViewState extends State<_ArticlesView> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Мои статьи'),
         centerTitle: true,
       ),

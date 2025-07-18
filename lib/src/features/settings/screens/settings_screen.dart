@@ -78,6 +78,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   trailing: CircleAvatar(backgroundColor: color, radius: 14),
                   onTap: () {
+                    Color pickerColor = color;
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -85,9 +86,9 @@ class SettingsScreen extends StatelessWidget {
                           title: const Text('Выберите цвет'),
                           content: SingleChildScrollView(
                             child: ColorPicker(
-                              pickerColor: color,
+                              pickerColor: pickerColor,
                               onColorChanged: (newColor) {
-                                context.read<ColorCubit>().setColor(newColor);
+                                pickerColor = newColor;
                               },
                               pickerAreaHeightPercent: 0.8,
                             ),
@@ -96,6 +97,9 @@ class SettingsScreen extends StatelessWidget {
                             TextButton(
                               child: const Text('Готово'),
                               onPressed: () {
+                                context.read<ColorCubit>().setColor(
+                                  pickerColor,
+                                );
                                 Navigator.of(context).pop();
                               },
                             ),

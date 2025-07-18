@@ -8,11 +8,11 @@ class AppTheme {
     primaryColor: primaryColor,
     scaffoldBackgroundColor: AppColors.lightScaffoldBackground,
     brightness: Brightness.light,
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       centerTitle: true,
-      backgroundColor: AppColors.primaryColor,
-      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
-      iconTheme: IconThemeData(color: Colors.white),
+      backgroundColor: primaryColor,
+      titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
+      iconTheme: const IconThemeData(color: Colors.white),
     ),
     navigationBarTheme: NavigationBarThemeData(
       height: AppDimensions.navigationBarHeight,
@@ -34,7 +34,7 @@ class AppTheme {
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const IconThemeData(color: AppColors.primaryColor);
+          return IconThemeData(color: primaryColor);
         }
         return const IconThemeData(color: AppColors.unselectedNavIcon);
       }),
@@ -86,7 +86,7 @@ class AppTheme {
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const IconThemeData(color: AppColors.primaryColor);
+          return IconThemeData(color: primaryColor);
         }
         return const IconThemeData(color: AppColors.darkUnselectedNavIcon);
       }),

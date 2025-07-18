@@ -80,42 +80,30 @@ class FintamerApp extends StatelessWidget {
                 ),
           ),
         ],
-        child: BlocBuilder<ColorCubit, Color>(
-          builder: (context, color) {
-            return BlocBuilder<ThemeCubit, ThemeMode>(
-              builder: (context, themeMode) {
-                return MaterialApp(
-                  title: 'Fintamer',
-                  theme: AppTheme.lightTheme(color),
-                  darkTheme: AppTheme.darkTheme(color),
-                  themeMode: themeMode,
-                  initialRoute: AppRouter.initialRoute,
-                  routes: AppRouter.routes,
-                  builder: (context, child) {
-                    final currentThemeMode = context.watch<ThemeCubit>().state;
-                    final currentColor = context.watch<ColorCubit>().state;
-                    ThemeData theme;
-                    switch (currentThemeMode) {
-                      case ThemeMode.light:
-                        theme = AppTheme.lightTheme(currentColor);
-                        break;
-                      case ThemeMode.dark:
-                        theme = AppTheme.darkTheme(currentColor);
-                        break;
-                      case ThemeMode.system:
-                        final brightness =
-                            MediaQuery.of(context).platformBrightness;
-                        theme =
-                            brightness == Brightness.dark
-                                ? AppTheme.darkTheme(currentColor)
-                                : AppTheme.lightTheme(currentColor);
-                        break;
-                    }
-                    return Theme(data: theme, child: child!);
-                  },
-                );
-              },
-            );
+        child: MaterialApp(
+          title: 'Fintamer',
+          initialRoute: AppRouter.initialRoute,
+          routes: AppRouter.routes,
+          builder: (context, child) {
+            final color = context.watch<ColorCubit>().state;
+            final themeMode = context.watch<ThemeCubit>().state;
+            ThemeData theme;
+            switch (themeMode) {
+              case ThemeMode.light:
+                theme = AppTheme.lightTheme(color);
+                break;
+              case ThemeMode.dark:
+                theme = AppTheme.darkTheme(color);
+                break;
+              case ThemeMode.system:
+                final brightness = MediaQuery.of(context).platformBrightness;
+                theme =
+                    brightness == Brightness.dark
+                        ? AppTheme.darkTheme(color)
+                        : AppTheme.lightTheme(color);
+                break;
+            }
+            return Theme(data: theme, child: child!);
           },
         ),
       ),

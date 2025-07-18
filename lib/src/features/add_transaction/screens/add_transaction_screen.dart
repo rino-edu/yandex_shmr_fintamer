@@ -94,7 +94,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: AppColors.primaryColor,
+          backgroundColor: Theme.of(context).primaryColor,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.close),

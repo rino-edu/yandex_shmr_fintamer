@@ -103,7 +103,7 @@ class _HistoryView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Моя история'),
         centerTitle: true,
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         titleTextStyle: theme.textTheme.titleLarge,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

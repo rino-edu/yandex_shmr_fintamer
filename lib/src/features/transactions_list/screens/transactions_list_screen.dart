@@ -48,7 +48,7 @@ class _TransactionsListView extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
         centerTitle: true,
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         titleTextStyle: theme.textTheme.titleLarge,
         actions: [
           IconButton(
@@ -178,7 +178,7 @@ class _TransactionsListView extends StatelessWidget {
           }
         },
         shape: const CircleBorder(),
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: AppColors.white, size: 32),
       ),
     );
