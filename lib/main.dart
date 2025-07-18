@@ -5,6 +5,7 @@ import 'package:fintamer/src/core/network_status/network_status_cubit.dart';
 import 'package:fintamer/src/core/router/app_router.dart';
 import 'package:fintamer/src/core/theme/app_theme.dart';
 import 'package:fintamer/src/core/theme/cubit/theme_cubit.dart';
+import 'package:fintamer/src/core/theme/cubit/color_cubit.dart';
 import 'package:fintamer/src/data/api/api_client.dart';
 import 'package:fintamer/src/data/repositories/api_account_repository.dart';
 import 'package:fintamer/src/data/repositories/api_categories_repository.dart';
@@ -45,6 +46,7 @@ class FintamerApp extends StatelessWidget {
           create: (context) => NetworkStatusCubit(),
         ),
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
+        BlocProvider<ColorCubit>(create: (context) => ColorCubit()),
       ],
       child: MultiRepositoryProvider(
         providers: [
@@ -78,35 +80,40 @@ class FintamerApp extends StatelessWidget {
                 ),
           ),
         ],
-        child: BlocBuilder<ThemeCubit, ThemeMode>(
-          builder: (context, themeMode) {
-            return MaterialApp(
-              title: 'Fintamer',
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeMode,
-              initialRoute: AppRouter.initialRoute,
-              routes: AppRouter.routes,
-              builder: (context, child) {
-                final themeMode = context.watch<ThemeCubit>().state;
-                ThemeData theme;
-                switch (themeMode) {
-                  case ThemeMode.light:
-                    theme = AppTheme.lightTheme;
-                    break;
-                  case ThemeMode.dark:
-                    theme = AppTheme.darkTheme;
-                    break;
-                  case ThemeMode.system:
-                    final brightness =
-                        MediaQuery.of(context).platformBrightness;
-                    theme =
-                        brightness == Brightness.dark
-                            ? AppTheme.darkTheme
-                            : AppTheme.lightTheme;
-                    break;
-                }
-                return Theme(data: theme, child: child!);
+        child: BlocBuilder<ColorCubit, Color>(
+          builder: (context, color) {
+            return BlocBuilder<ThemeCubit, ThemeMode>(
+              builder: (context, themeMode) {
+                return MaterialApp(
+                  title: 'Fintamer',
+                  theme: AppTheme.lightTheme(color),
+                  darkTheme: AppTheme.darkTheme(color),
+                  themeMode: themeMode,
+                  initialRoute: AppRouter.initialRoute,
+                  routes: AppRouter.routes,
+                  builder: (context, child) {
+                    final currentThemeMode = context.watch<ThemeCubit>().state;
+                    final currentColor = context.watch<ColorCubit>().state;
+                    ThemeData theme;
+                    switch (currentThemeMode) {
+                      case ThemeMode.light:
+                        theme = AppTheme.lightTheme(currentColor);
+                        break;
+                      case ThemeMode.dark:
+                        theme = AppTheme.darkTheme(currentColor);
+                        break;
+                      case ThemeMode.system:
+                        final brightness =
+                            MediaQuery.of(context).platformBrightness;
+                        theme =
+                            brightness == Brightness.dark
+                                ? AppTheme.darkTheme(currentColor)
+                                : AppTheme.lightTheme(currentColor);
+                        break;
+                    }
+                    return Theme(data: theme, child: child!);
+                  },
+                );
               },
             );
           },

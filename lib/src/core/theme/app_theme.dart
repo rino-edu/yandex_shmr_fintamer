@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 
 class AppTheme {
-  static final ThemeData lightTheme = ThemeData(
+  static ThemeData lightTheme(Color primaryColor) => ThemeData(
     useMaterial3: true,
-    primaryColor: AppColors.primaryColor,
+    primaryColor: primaryColor,
     scaffoldBackgroundColor: AppColors.lightScaffoldBackground,
     brightness: Brightness.light,
     appBarTheme: const AppBarTheme(
@@ -42,22 +42,22 @@ class AppTheme {
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryColor;
+          return primaryColor;
         }
         return Colors.grey.shade300;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryColor.withValues(alpha: 0.5);
+          return primaryColor.withOpacity(0.5);
         }
         return Colors.grey.shade400;
       }),
     ),
   );
 
-  static final ThemeData darkTheme = ThemeData(
+  static ThemeData darkTheme(Color primaryColor) => ThemeData(
     useMaterial3: true,
-    primaryColor: AppColors.primaryColor,
+    primaryColor: primaryColor,
     scaffoldBackgroundColor: AppColors.darkScaffoldBackground,
     brightness: Brightness.dark,
     appBarTheme: AppBarTheme(
@@ -94,13 +94,13 @@ class AppTheme {
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryColor;
+          return primaryColor;
         }
         return Colors.grey.shade700;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryColor.withValues(alpha: 0.5);
+          return primaryColor.withOpacity(0.5);
         }
         return Colors.grey.shade800;
       }),

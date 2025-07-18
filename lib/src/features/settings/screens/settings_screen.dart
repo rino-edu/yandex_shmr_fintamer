@@ -1,6 +1,8 @@
+import 'package:fintamer/src/core/theme/cubit/color_cubit.dart';
 import 'package:fintamer/src/core/theme/cubit/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -27,7 +29,7 @@ class SettingsScreen extends StatelessWidget {
                 isDarkMode = state == ThemeMode.dark;
               }
 
-      /*                return ListTile(
+              /*                return ListTile(
                 title: const Text('Темная тема'),
                 trailing: Switch(
                   value: isDarkMode,
@@ -46,7 +48,10 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 child: ListTile(
                   minTileHeight: 56,
-                  title: Text('Темная тема', style: Theme.of(context).textTheme.bodyLarge),
+                  title: Text(
+                    'Темная тема',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                   trailing: Switch(
                     value: isDarkMode,
                     onChanged: (value) {
@@ -59,7 +64,50 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
-
+          BlocBuilder<ColorCubit, Color>(
+            builder: (context, color) {
+              return Container(
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFFCAC4D0))),
+                ),
+                child: ListTile(
+                  minTileHeight: 56,
+                  title: Text(
+                    'Основной цвет',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  trailing: CircleAvatar(backgroundColor: color, radius: 14),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Выберите цвет'),
+                          content: SingleChildScrollView(
+                            child: ColorPicker(
+                              pickerColor: color,
+                              onColorChanged: (newColor) {
+                                context.read<ColorCubit>().setColor(newColor);
+                              },
+                              pickerAreaHeightPercent: 0.8,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Готово'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
