@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ColorCubit extends Cubit<Color> {
-  ColorCubit() : super(const Color(0xff4f80c8)) {
+  ColorCubit() : super(const Color(0xFF2AE881)) {
     _loadColor();
   }
 
