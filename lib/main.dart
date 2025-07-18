@@ -20,6 +20,8 @@ import 'package:fintamer/src/data/local/drift_local_data_source.dart';
 import 'package:fintamer/src/data/services/synchronization_service.dart';
 import 'package:worker_manager/worker_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:fintamer/src/features/auth/cubit/auth_cubit.dart';
+import 'package:fintamer/src/features/auth/screens/pin_code_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +51,7 @@ class FintamerApp extends StatelessWidget {
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
         BlocProvider<ColorCubit>(create: (context) => ColorCubit()),
         BlocProvider<HapticCubit>(create: (context) => HapticCubit()),
+        BlocProvider<AuthCubit>(create: (context) => AuthCubit()),
       ],
       child: MultiRepositoryProvider(
         providers: [
@@ -84,8 +87,6 @@ class FintamerApp extends StatelessWidget {
         ],
         child: MaterialApp(
           title: 'Fintamer',
-          initialRoute: AppRouter.initialRoute,
-          routes: AppRouter.routes,
           builder: (context, child) {
             final color = context.watch<ColorCubit>().state;
             final themeMode = context.watch<ThemeCubit>().state;
@@ -107,6 +108,19 @@ class FintamerApp extends StatelessWidget {
             }
             return Theme(data: theme, child: child!);
           },
+          home: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state.authStatus == AuthStatus.authenticated) {
+                return const MainScreen();
+              }
+              if (state.authStatus == AuthStatus.unauthenticated) {
+                return const PinCodeScreen(mode: PinCodeMode.enter);
+              }
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            },
+          ),
         ),
       ),
     );

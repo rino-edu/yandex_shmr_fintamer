@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:fintamer/src/core/haptics/haptic_cubit.dart';
 import 'package:flutter/services.dart';
+import 'package:fintamer/src/features/auth/cubit/auth_cubit.dart';
+import 'package:fintamer/src/features/auth/screens/pin_code_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -137,6 +139,79 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   onTap: null,
                 ),
+              );
+            },
+          ),
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              return Column(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                      ),
+                    ),
+                    child: ListTile(
+                      minTileHeight: 56,
+                      title: Text(
+                        authState.hasPin
+                            ? 'Изменить ПИН-код'
+                            : 'Установить ПИН-код',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (_) =>
+                                    const PinCodeScreen(mode: PinCodeMode.set),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (authState.hasPin)
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                        ),
+                      ),
+                      child: ListTile(
+                        minTileHeight: 56,
+                        title: Text(
+                          'Удалить ПИН-код',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.copyWith(color: Colors.red),
+                        ),
+                        onTap: () => context.read<AuthCubit>().removePin(),
+                      ),
+                    ),
+                  if (authState.biometricStatus == BiometricStatus.available &&
+                      authState.hasPin)
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Color(0xFFCAC4D0)),
+                        ),
+                      ),
+                      child: ListTile(
+                        minTileHeight: 56,
+                        title: Text(
+                          'Вход по Face ID/Touch ID',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        trailing: Switch(
+                          value: authState.isBiometricEnabled,
+                          onChanged: (value) {
+                            context.read<AuthCubit>().toggleBiometrics(value);
+                          },
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
